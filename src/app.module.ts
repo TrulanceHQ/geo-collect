@@ -52,7 +52,7 @@ import { EmailUtil } from './utils/email/email.util';
           },
         },
         defaults: {
-          from: 'EverythingMeat: No Reply" <oluwafemiomolounnu@gmail.com>', // Replace with your default from address
+          from: 'Data Collection: No Reply" <oluwafemiomolounnu@gmail.com>', // Replace with your default from address
         },
         template: {
           dir: join(__dirname, './../src/templates'),

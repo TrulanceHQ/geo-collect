@@ -9,13 +9,37 @@ export class EmailUtil {
     to: string,
     subject: string,
     template: string,
-    context: Record<string, any>,
+    context: {
+      password: string;
+      role: string;
+    },
   ): Promise<void> {
-    await this.mailerService.sendMail(<ISendMailOptions>{
+    await this.mailerService.sendMail(<ISendMailOptions>(<unknown>{
       to,
       subject,
-      template, // e.g., './verification-code'
-      context, // e.g., { code: '123456' }
-    });
+      template,
+      context: {
+        password: context.password,
+        role: context.role,
+      },
+    }));
+  }
+
+  async sendResetPasswordEmail(
+    to: string,
+    subject: string,
+    template: string,
+    context: {
+      resetLink: string;
+    },
+  ): Promise<void> {
+    await this.mailerService.sendMail(<ISendMailOptions>(<unknown>{
+      to,
+      subject,
+      template,
+      context: {
+        resetLink: context.resetLink,
+      },
+    }));
   }
 }

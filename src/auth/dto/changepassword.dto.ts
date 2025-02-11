@@ -10,10 +10,6 @@ export class ChangePasswordDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/, {
-    message:
-      'Password must contain at least one letter, one number, and one special character',
-  })
   oldPassword: string;
 
   @ApiProperty({

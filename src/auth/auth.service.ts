@@ -17,6 +17,8 @@ import { EmailUtil } from '../utils/email/email.util';
 import { CreateUserDto } from './dto/createuser.dto';
 import { CloudinaryService } from 'src/utils/cloudinary/cloudinary.service';
 import { UpdateUserDto } from './dto/updateuser.dto';
+import { generateStrongPassword } from 'src/utils/password.utils';
+import { v4 as uuidv4 } from 'uuid';
 export interface LoginResponse {
   accessToken: string;
   user: User;
@@ -29,7 +31,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailUtil: EmailUtil,
   ) {}
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async createUserByAdmin(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.userModel
       .findOne({ emailAddress: createUserDto.emailAddress })
       .exec();
@@ -38,28 +40,24 @@ export class AuthService {
         'Email address has been used by another customer',
       );
     }
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000,
-    ).toString();
-    const verificationCodeExpires = new Date();
-    verificationCodeExpires.setMinutes(
-      verificationCodeExpires.getMinutes() + 2,
-    ); // Code expires in 2 minutes
+
+    const temporaryPassword = generateStrongPassword();
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
     const createdUser = new this.userModel({
       ...createUserDto,
       password: hashedPassword,
-      verificationCode,
-      verificationCodeExpires,
       isVerified: false,
     });
 
     await this.emailUtil.sendEmail(
       createUserDto.emailAddress,
-      'Email Verification',
-      'verification-code',
-      { code: verificationCode },
+      'Account Created - Temporary Password',
+      'temporary-password',
+      {
+        password: temporaryPassword,
+        role: createUserDto.role
+      },
     );
 
     return createdUser.save();
@@ -72,11 +70,12 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    if (!user.isVerified) {
-      throw new UnauthorizedException('Email not verified');
-    }
     if (user && (await bcrypt.compare(password, user.password))) {
-      // Generate JWT token
+
+      user.isVerified = true;
+      user.isActive = true;
+      await user.save();
+
       const payload = {
         emailAddress: user.emailAddress,
         sub: user._id,
@@ -87,23 +86,6 @@ export class AuthService {
     }
     throw new UnauthorizedException('Username or Password Incorrect');
   }
-  async verifyEmail(emailAddress: string, code: string): Promise<void> {
-    const user = await this.userModel.findOne({ emailAddress }).exec();
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    if (
-      user.verificationCode !== code ||
-      user.verificationCodeExpires && user.verificationCodeExpires < new Date()
-    ) {
-      throw new BadRequestException('Invalid or expired verification code');
-    }
-    user.isVerified = true;
-    user.isActive = true;
-    user.verificationCode = undefined;
-    user.verificationCodeExpires = undefined;
-    await user.save();
-  }
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
@@ -112,19 +94,28 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const resetCodeExpires = new Date();
-    resetCodeExpires.setMinutes(resetCodeExpires.getMinutes() + 2);
-    user.resetCode = resetCode;
-    user.resetCodeExpires = resetCodeExpires;
+    const resetToken = uuidv4();
+    const resetTokenExpires = new Date();
+    resetTokenExpires.setMinutes(resetTokenExpires.getMinutes() + 30);
+
+    user.resetToken = resetToken;
+    user.resetTokenExpires = resetTokenExpires;
     await user.save();
 
-    await this.emailUtil.sendEmail(
-      emailAddress,
-      'Reset Password',
-      'reset-password',
-      { code: resetCode },
+    const resetLink = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
+
+      await this.emailUtil.sendResetPasswordEmail(
+        emailAddress,
+      'Password Reset Request',
+      'rest-password',
+      { resetLink },
     );
+    // await this.emailUtil.sendEmail(
+    //   emailAddress,
+    //   'Reset Password',
+    //   'reset-password',
+    //   { code: resetCode },
+    // );
 
     return;
   }
@@ -137,7 +128,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    if (user.resetCode !== code || !user.resetCodeExpires || user.resetCodeExpires < new Date()) {
+    if (user.resetToken !== code || !user.resetTokenExpires || user.resetTokenExpires < new Date()) {
       throw new BadRequestException('Invalid or expired reset code');
     }
 
@@ -151,8 +142,8 @@ export class AuthService {
       );
     }
     user.password = await bcrypt.hash(newPassword, 10);
-    user.resetCode = undefined;
-    user.resetCodeExpires = undefined;
+    user.resetToken = undefined;
+    user.resetTokenExpires = undefined;
     await user.save();
   }
   async findUsersByRole(
@@ -175,18 +166,6 @@ export class AuthService {
     }
     return user;
   }
-  async updateUserStatus(id: string, isActive: boolean): Promise<User> {
-    if (!isValidObjectId(id)) {
-      throw new BadRequestException('Invalid user ID format');
-    }
-    const user = await this.userModel
-      .findByIdAndUpdate(id, { isActive }, { new: true })
-      .exec();
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
   async deleteUser(id: string): Promise<void> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -195,9 +174,6 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  }
-  async countUsersByRole(role: string): Promise<number> {
-    return this.userModel.countDocuments({ role: role }).exec();
   }
   async updateUser(
     id: string,
@@ -251,35 +227,5 @@ export class AuthService {
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await user.save();
     return { message: 'Password updated successfully' };
-  }
-async resendVerificationCode(
-    emailAddress: string,
-  ): Promise<{ message: string }> {
-    const user = await this.userModel.findOne({ emailAddress }).exec();
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    if (user.isVerified) {
-      throw new BadRequestException('User is already verified');
-    }
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000,
-    ).toString();
-    const verificationCodeExpires = new Date();
-    verificationCodeExpires.setMinutes(
-      verificationCodeExpires.getMinutes() + 2,
-    );
-    user.verificationCode = verificationCode;
-    user.verificationCodeExpires = verificationCodeExpires;
-    await user.save();
-
-    await this.emailUtil.sendEmail(
-      emailAddress,
-      'Email Verification',
-      'verification-code',
-      { code: verificationCode },
-    );
-
-    return { message: 'Verification code resent successfully' };
   }
 }
