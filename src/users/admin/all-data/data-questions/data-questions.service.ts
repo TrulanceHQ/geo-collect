@@ -44,6 +44,7 @@ export class DataEntryQuestionsService {
 
     const newEntry = new this.dataEntryModel({
       title: dto.title,
+      subtitle: dto.subtitle,
       questions: questionsWithIds,
     });
 

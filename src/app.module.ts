@@ -13,7 +13,6 @@ import { developmentConfig, productionConfig } from './config';
 import { AuthModule } from './auth/auth.module';
 import { NgStatesModule } from './users/admin/ng-states/ng-states.module';
 import { DataEntryQuestionModule } from './users/admin/all-data/data-questions/data-questions.module';
-import { DataEntryAnswerModule } from './users/admin/all-data/data-entries/data-entries.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 console.log(process.env.DEVELOPMENT_MONGODB_CONNECTION_URL);
@@ -72,7 +71,6 @@ import { EmailUtil } from './utils/email/email.util';
     AuthModule,
     NgStatesModule,
     DataEntryQuestionModule,
-    DataEntryAnswerModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailUtil],
