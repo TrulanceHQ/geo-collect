@@ -21,7 +21,7 @@ import { Roles } from 'src/utils/roles/roles.decorator';
 import { NgStatesService } from './ng-states.service';
 import { CreateStateDto, UpdateStateDto } from './ng-states.dto';
 
-@ApiTags('Admin')
+@ApiTags('Admin - Manage States')
 @ApiBearerAuth()
 @Controller('api/v1/admin')
 @UseGuards(RolesGuard)

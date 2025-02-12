@@ -1,90 +1,101 @@
+// import { Injectable } from '@nestjs/common';
+// import { InjectModel } from '@nestjs/mongoose';
+// import { Model } from 'mongoose';
+// import { DataEntryQuestion, QuestionType } from './data-questions.schema';
+// import { CreateDataEntryQuestionDto } from './data-questions.dto';
+
+// @Injectable()
+// export class DataEntryQuestionsService {
+//   constructor(
+//     @InjectModel(DataEntryQuestion.name)
+//     private questionModel: Model<DataEntryQuestion>,
+//   ) {}
+
+//   async createQuestion(dto: CreateDataEntryQuestionDto) {
+//     return this.questionModel.create(dto);
+//   }
+
+//   async getAllQuestions() {
+//     return this.questionModel.find();
+//   }
+// }
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { DataEntryQuestion } from './data-questions.schema';
-import {
-  CreateDataEntryQuestionDto,
-  UpdateDataEntryQuestionDto,
-} from './data-questions.dto';
+import { Model } from 'mongoose';
+import { DataEntryQuestion, DataEntryDocument } from './data-questions.schema';
+import { CreateDataEntryQuestionDto } from './data-questions.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class DataEntryQuestionsService {
   constructor(
     @InjectModel(DataEntryQuestion.name)
-    private readonly dataEntryQuestionModel: Model<DataEntryQuestion>,
+    private dataEntryModel: Model<DataEntryDocument>,
   ) {}
 
-  async createQuestion(
-    createDataEntryQuestionDto: CreateDataEntryQuestionDto,
-    adminId: string,
-  ) {
-    const createdQuestion = new this.dataEntryQuestionModel({
-      ...createDataEntryQuestionDto,
-      createdBy: new Types.ObjectId(adminId),
+  async createQuestionSet(
+    dto: CreateDataEntryQuestionDto,
+  ): Promise<DataEntryQuestion> {
+    const questionsWithIds = dto.questions.map((q) => ({
+      ...q,
+      questionId: uuidv4(),
+    }));
+
+    const newEntry = new this.dataEntryModel({
+      title: dto.title,
+      questions: questionsWithIds,
     });
-    return await createdQuestion.save();
+
+    return newEntry.save();
   }
 
-  async getAllQuestions() {
-    return this.dataEntryQuestionModel.find({ isActive: true }).exec();
+  //   async updateQuestionSet(id: string, dto: CreateDataEntryQuestionDto): Promise<DataEntryQuestion> {
+  //     return this.dataEntryModel.findByIdAndUpdate(id, { $set: dto }, { new: true });
+  //   }
+
+  async getAllQuestionSets(): Promise<DataEntryQuestion[]> {
+    return this.dataEntryModel.find().exec();
   }
 
-  async updateQuestion(
+  async getQuestionSetById(id: string): Promise<DataEntryQuestion> {
+    const questionSet = await this.dataEntryModel.findById(id).exec();
+    if (!questionSet) {
+      throw new NotFoundException('Question set not found');
+    }
+    return questionSet;
+  }
+
+  async updateQuestionSet(
     id: string,
-    updateDataEntryQuestionDto: UpdateDataEntryQuestionDto,
-    adminId: string,
-  ) {
-    const existingQuestion = await this.dataEntryQuestionModel
-      .findById(id)
+    dto: CreateDataEntryQuestionDto,
+  ): Promise<DataEntryQuestion> {
+    const updatedEntry = await this.dataEntryModel
+      .findByIdAndUpdate(
+        id,
+        {
+          title: dto.title,
+          questions: dto.questions.map((q) => ({
+            ...q,
+            questionId: uuidv4(),
+          })),
+        },
+        { new: true },
+      )
       .exec();
-    if (!existingQuestion) {
-      throw new NotFoundException(`Question with ID ${id} not found.`);
+
+    if (!updatedEntry) {
+      throw new NotFoundException('Question set not found');
     }
 
-    // if (existingQuestion.createdBy.toString() !== adminId) {
-    //   throw new Error('You are not authorized to update this question.');
-    // }
-
-    Object.assign(existingQuestion, updateDataEntryQuestionDto, {
-      updatedBy: adminId,
-    });
-    return await existingQuestion.save();
+    return updatedEntry;
   }
 
-  async deleteQuestion(id: string) {
-    const existingQuestion = await this.dataEntryQuestionModel
-      .findById(id)
-      .exec();
-    if (!existingQuestion) {
-      throw new NotFoundException(`Question with ID ${id} not found.`);
+  async deleteQuestionSet(id: string): Promise<{ message: string }> {
+    const deletedEntry = await this.dataEntryModel.findByIdAndDelete(id).exec();
+    if (!deletedEntry) {
+      throw new NotFoundException('Question set not found');
     }
-
-    existingQuestion.isActive = false; // Mark as inactive instead of deleting it
-    await existingQuestion.save();
-    return { message: 'Question deleted successfully' };
-  }
-  // Retrieve all data entries
-  async getAllDataEntries(): Promise<DataEntryQuestion[]> {
-    return await this.dataEntryQuestionModel
-      .find()
-      .populate('createdBy')
-      .exec();
-  }
-
-  // Retrieve a single data entry by its ID
-  async getDataEntryById(id: string): Promise<DataEntryQuestion> {
-    const entry = await this.dataEntryQuestionModel
-      .findById(id)
-      .populate('createdBy')
-      .exec();
-
-    if (!entry) {
-      throw new NotFoundException(`Data entry with ID ${id} not found`);
-    }
-    return entry;
-  }
-  // count the total number of data entries collected
-  async countDataEntries(): Promise<number> {
-    return await this.dataEntryQuestionModel.countDocuments().exec();
+    return { message: 'Question set deleted successfully' };
   }
 }

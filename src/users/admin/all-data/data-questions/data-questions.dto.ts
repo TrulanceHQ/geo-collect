@@ -1,70 +1,54 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsArray,
   IsString,
+  IsArray,
+  ValidateNested,
   IsEnum,
-  IsBoolean,
-  ArrayNotEmpty,
   IsOptional,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { QuestionType } from './data-questions.schema';
 
-export class CreateDataEntryQuestionDto {
-  @ApiProperty({ description: 'The question text' })
+class QuestionDto {
+  @ApiProperty({
+    example: 'What is your favorite color?',
+    description: 'The survey question',
+  })
   @IsString()
   question: string;
 
   @ApiProperty({
-    description: 'The type of question',
-    enum: ['single-choice', 'multiple-choice', 'text'],
+    enum: QuestionType,
+    example: QuestionType.SINGLE_CHOICE,
+    description: 'Type of question',
   })
-  @IsEnum(['single-choice', 'multiple-choice', 'text'])
-  questionType: string;
-
-  @ApiPropertyOptional({
-    description: 'Options for multiple-choice or single-choice questions',
-  })
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsOptional()
-  options: string[];
+  @IsEnum(QuestionType)
+  type: QuestionType;
 
   @ApiProperty({
-    description: 'Whether the question is required',
-    default: false,
-  })
-  @IsBoolean()
-  required: boolean;
-}
-
-export class UpdateDataEntryQuestionDto {
-  @ApiPropertyOptional({ description: 'The updated question text' })
-  @IsString()
-  @IsOptional()
-  question?: string;
-
-  @ApiPropertyOptional({ description: 'Updated type of question' })
-  @IsEnum(['single-choice', 'multiple-choice', 'text'])
-  @IsOptional()
-  questionType?: string;
-
-  @ApiPropertyOptional({
-    description:
-      'Updated options for multiple-choice or single-choice questions',
+    example: ['Red', 'Blue', 'Green'],
+    required: false,
+    description: 'Choices for single/multiple-choice questions',
   })
   @IsArray()
-  @ArrayNotEmpty()
   @IsOptional()
   options?: string[];
+}
 
-  @ApiPropertyOptional({ description: 'Whether the question is required' })
-  @IsBoolean()
-  @IsOptional()
-  required?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Set whether the question is active or deleted',
+export class CreateDataEntryQuestionDto {
+  @ApiProperty({
+    example: 'User Preferences Survey',
+    description: 'The title of the question set',
   })
-  @IsBoolean()
-  @IsOptional()
-  isActive?: boolean;
+  @IsString()
+  title: string;
+
+  @ApiProperty({
+    type: [QuestionDto],
+    description: 'Array of survey questions',
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => QuestionDto)
+  questions: QuestionDto[];
 }

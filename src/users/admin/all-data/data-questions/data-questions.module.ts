@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DataEntryQuestionsService } from './data-questions.service';
-import { DataEntryQuestionsController } from './data-questions.controller';
+import { AdminController } from './data-questions.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -25,7 +25,7 @@ import {
       { name: DataEntryQuestion.name, schema: DataEntryQuestionSchema },
     ]),
   ],
-  controllers: [DataEntryQuestionsController],
+  controllers: [AdminController],
   providers: [DataEntryQuestionsService],
 })
 export class DataEntryQuestionModule {}

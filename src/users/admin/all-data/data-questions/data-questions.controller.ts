@@ -2,13 +2,13 @@ import {
   Controller,
   Post,
   Body,
-  Param,
+  Put,
   Patch,
-  Delete,
   Get,
+  Delete,
+  Param,
   UseGuards,
   HttpCode,
-  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,101 +16,75 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { DataEntryQuestionsService } from './data-questions.service';
+import { CreateDataEntryQuestionDto } from './data-questions.dto';
 import { RolesGuard } from 'src/utils/roles/roles.guard';
 import { Roles } from 'src/utils/roles/roles.decorator';
-import { DataEntryQuestionsService } from './data-questions.service';
-import {
-  CreateDataEntryQuestionDto,
-  UpdateDataEntryQuestionDto,
-} from './data-questions.dto';
 
-@ApiTags('Admin Data Entry')
+@ApiTags('Admin - Data Entry Questions')
 @ApiBearerAuth()
-@Controller('api/v1/admin/data-entry-questions')
+@Controller('admin/questions')
 @UseGuards(RolesGuard)
-export class DataEntryQuestionsController {
-  constructor(
-    private readonly dataEntryQuestionsService: DataEntryQuestionsService,
-  ) {}
+export class AdminController {
+  constructor(private readonly questionsService: DataEntryQuestionsService) {}
 
   // Create a new data entry question
   @Roles('admin')
-  @Post('/create')
+  @Post('create')
   @HttpCode(201)
-  @ApiOperation({ summary: 'Create a new data entry question' })
-  @ApiResponse({ status: 201, description: 'Question created successfully' })
-  async createQuestion(
-    @Body() createDataEntryQuestionDto: CreateDataEntryQuestionDto,
-    @Request() req: any,
-  ) {
-    const adminId = req.user.userId;
-    return this.dataEntryQuestionsService.createQuestion(
-      createDataEntryQuestionDto,
-      adminId,
-    );
+  @ApiOperation({ summary: 'Create a set of questions' })
+  @ApiResponse({
+    status: 201,
+    description: 'The question set has been successfully created.',
+  })
+  createQuestionSet(@Body() dto: CreateDataEntryQuestionDto) {
+    return this.questionsService.createQuestionSet(dto);
+  }
+  //Get
+  @Roles('admin')
+  @Get('all')
+  @ApiOperation({ summary: 'Get all question sets' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a list of all question sets.',
+  })
+  getAllQuestionSets() {
+    return this.questionsService.getAllQuestionSets();
   }
 
-  // Retrieve all data entry questions
   @Roles('admin')
-  @Get('/')
-  @ApiOperation({ summary: 'Get all data entry questions' })
-  @ApiResponse({ status: 200, description: 'List of all data entry questions' })
-  async getQuestions() {
-    return this.dataEntryQuestionsService.getAllQuestions();
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a question set by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the requested question set.',
+  })
+  getQuestionSetById(@Param('id') id: string) {
+    return this.questionsService.getQuestionSetById(id);
   }
 
-  // Update a data entry question
   @Roles('admin')
-  @Patch('/update/:id')
-  @HttpCode(200)
-  @ApiOperation({ summary: 'Update a data entry question' })
-  @ApiResponse({ status: 200, description: 'Question updated successfully' })
-  async updateQuestion(
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a question set' })
+  @ApiResponse({
+    status: 200,
+    description: 'The question set has been successfully updated.',
+  })
+  updateQuestionSet(
     @Param('id') id: string,
-    @Body() updateDataEntryQuestionDto: UpdateDataEntryQuestionDto,
-    @Request() req: any,
+    @Body() dto: CreateDataEntryQuestionDto,
   ) {
-    const adminId = req.user.userId;
-    return this.dataEntryQuestionsService.updateQuestion(
-      id,
-      updateDataEntryQuestionDto,
-      adminId,
-    );
+    return this.questionsService.updateQuestionSet(id, dto);
   }
 
-  // Delete a data entry question
   @Roles('admin')
-  @Delete('/delete/:id')
-  @HttpCode(200)
-  @ApiOperation({ summary: 'Delete a data entry question' })
-  @ApiResponse({ status: 200, description: 'Question deleted successfully' })
-  async deleteQuestion(@Param('id') id: string) {
-    return this.dataEntryQuestionsService.deleteQuestion(id);
-  }
-
-  // Retrieve all data entries
-  @Roles('admin')
-  @Get('/data-entries')
-  @ApiOperation({ summary: 'Retrieve all data entries (Admin only)' })
-  @ApiResponse({ status: 200, description: 'List of all data entries' })
-  async getAllDataEntries() {
-    return this.dataEntryQuestionsService.getAllDataEntries();
-  }
-
-  // Retrieve a single data entry by ID
-  @Roles('admin')
-  @Get('/data-entries/:id')
-  @ApiOperation({ summary: 'Retrieve a single data entry by ID (Admin only)' })
-  @ApiResponse({ status: 200, description: 'Data entry details' })
-  async getDataEntryById(@Param('id') id: string) {
-    return this.dataEntryQuestionsService.getDataEntryById(id);
-  }
-  // Retrieve the count of all data entries
-  @Roles('admin')
-  @Get('/data-entries/count')
-  @ApiOperation({ summary: 'Retrieve the total number of data entries' })
-  @ApiResponse({ status: 200, description: 'Data entry count retrieved' })
-  async getDataEntriesCount() {
-    return { count: await this.dataEntryQuestionsService.countDataEntries() };
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a question set' })
+  @ApiResponse({
+    status: 200,
+    description: 'The question set has been successfully deleted.',
+  })
+  deleteQuestionSet(@Param('id') id: string) {
+    return this.questionsService.deleteQuestionSet(id);
   }
 }

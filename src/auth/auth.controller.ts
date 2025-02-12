@@ -23,14 +23,14 @@ import { LocalAuthGuard } from 'src/utils/localguard/local-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RolesGuard } from 'src/utils/roles/roles.guard';
 import { Roles } from 'src/utils/roles/roles.decorator';
-import { VerifyEmailDto } from './dto/verifyemail.dto';
+// import { VerifyEmailDto } from './dto/verifyemail.dto';
 import { CreateUserDto } from './dto/createuser.dto';
 import { LoginUserDto } from './dto/login.dto';
 import { UpdateUserDto } from './dto/updateuser.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 import { ChangePasswordDto } from './dto/changepassword.dto';
-import { ResendVerificationCodeDto } from './dto/resendverificationcode.dto';
+// import { ResendVerificationCodeDto } from './dto/resendverificationcode.dto';
 
 @ApiTags('Auth')
 @ApiBearerAuth()
@@ -39,48 +39,49 @@ import { ResendVerificationCodeDto } from './dto/resendverificationcode.dto';
 export class UsersController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/register')
+  @Roles('admin')
+  @Post('/create-user')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({ status: 409, description: 'Conflict: Email already exists' })
   async create(@Body() userDto: CreateUserDto) {
-    return this.authService.create(userDto);
+    return this.authService.createUserByAdmin(userDto);
   }
 
-  @Post('/verify-email')
-  @ApiOperation({ summary: 'Verify New User Email' })
-  @ApiBody({ type: VerifyEmailDto })
-  @ApiResponse({ status: 200, description: 'Email verified successfully' })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid or expired verification code',
-  })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized: Invalid credentials',
-  })
-  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-    const { emailAddress, code } = verifyEmailDto;
-    await this.authService.verifyEmail(emailAddress, code);
-    return { message: 'Email verified successfully' };
-  }
+  // @Post('/verify-email')
+  // @ApiOperation({ summary: 'Verify New User Email' })
+  // @ApiBody({ type: VerifyEmailDto })
+  // @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  // @ApiResponse({
+  //   status: 400,
+  //   description: 'Invalid or expired verification code',
+  // })
+  // @ApiResponse({ status: 404, description: 'User not found' })
+  // @ApiResponse({
+  //   status: 401,
+  //   description: 'Unauthorized: Invalid credentials',
+  // })
+  // async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+  //   const { emailAddress, code } = verifyEmailDto;
+  //   await this.authService.verifyEmail(emailAddress, code);
+  //   return { message: 'Email verified successfully' };
+  // }
 
-  @Post('/resend-verification-code')
-  @ApiOperation({ summary: 'Resend Verification Code' })
-  @ApiBody({ type: ResendVerificationCodeDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Verification code resent successfully',
-  })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'User is already verified' })
-  async resendVerificationCode(
-    @Body() resendVerificationCodeDto: ResendVerificationCodeDto,
-  ) {
-    const { emailAddress } = resendVerificationCodeDto;
-    return this.authService.resendVerificationCode(emailAddress);
-  }
+  // @Post('/resend-verification-code')
+  // @ApiOperation({ summary: 'Resend Verification Code' })
+  // @ApiBody({ type: ResendVerificationCodeDto })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Verification code resent successfully',
+  // })
+  // @ApiResponse({ status: 404, description: 'User not found' })
+  // @ApiResponse({ status: 400, description: 'User is already verified' })
+  // async resendVerificationCode(
+  //   @Body() resendVerificationCodeDto: ResendVerificationCodeDto,
+  // ) {
+  //   const { emailAddress } = resendVerificationCodeDto;
+  //   return this.authService.resendVerificationCode(emailAddress);
+  // }
 
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)

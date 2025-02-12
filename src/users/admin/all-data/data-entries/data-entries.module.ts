@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { EnumeratorDataEntryController } from './data-entries.controller';
-import { DataEntryService } from './data-entries-service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { DataEntry, DataEntrySchema } from './data-entries.schema';
+import { EnumeratorController } from './data-entries.controller';
+import { SurveyResponseService } from './data-entries-service';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { SurveyResponse, SurveyResponseSchema } from './data-entries.schema';
 
 @Module({
   imports: [
@@ -17,12 +17,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
-    AuthModule,
+    AuthModule, // For authentication integration
     MongooseModule.forFeature([
-      { name: DataEntry.name, schema: DataEntrySchema },
+      { name: SurveyResponse.name, schema: SurveyResponseSchema },
     ]),
   ],
-  controllers: [EnumeratorDataEntryController],
-  providers: [DataEntryService],
+  controllers: [EnumeratorController],
+  providers: [SurveyResponseService],
 })
-export class DataEntryModule {}
+export class DataEntryAnswerModule {}

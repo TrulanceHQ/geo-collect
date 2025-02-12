@@ -13,7 +13,7 @@ import { developmentConfig, productionConfig } from './config';
 import { AuthModule } from './auth/auth.module';
 import { NgStatesModule } from './users/admin/ng-states/ng-states.module';
 import { DataEntryQuestionModule } from './users/admin/all-data/data-questions/data-questions.module';
-import { DataEntryModule } from './users/admin/all-data/data-entries/data-entries.module';
+import { DataEntryAnswerModule } from './users/admin/all-data/data-entries/data-entries.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 console.log(process.env.DEVELOPMENT_MONGODB_CONNECTION_URL);
@@ -57,7 +57,7 @@ import { EmailUtil } from './utils/email/email.util';
           },
         },
         defaults: {
-          from: 'Geo-Collect: No Reply" <trulancehq@gmail.com>', // Replace with your default from address
+          from: 'Data Collection: No Reply" <trulancehq@gmail.com>', // Replace with your default from address
         },
         template: {
           dir: join(__dirname, './../src/templates'),
@@ -72,7 +72,7 @@ import { EmailUtil } from './utils/email/email.util';
     AuthModule,
     NgStatesModule,
     DataEntryQuestionModule,
-    DataEntryModule,
+    DataEntryAnswerModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailUtil],

@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-// import * as bcrypt from 'bcryptjs';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -14,10 +13,10 @@ export enum Gender {
 
 @Schema({ timestamps: true })
 export class User extends Document {
-  @Prop({ required: true })
+  @Prop({ required: false })
   firstName: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   lastName: string;
 
   @Prop({ required: true, unique: true })
@@ -48,10 +47,10 @@ export class User extends Document {
   verificationCodeExpires?: Date;
 
   @Prop({ required: false })
-  resetCode?: string;
+  resetToken?: string;
 
   @Prop({ required: false })
-  resetCodeExpires?: Date;
+  resetTokenExpires?: Date;
 
   @Prop({ enum: Gender, required: false })
   gender?: Gender;

@@ -1,33 +1,37 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { User } from 'src/auth/schema/user.schema';
+import { Document } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
-export type DataEntryQuestionDocument = DataEntryQuestion & Document;
-
-@Schema({ timestamps: true })
-export class DataEntryQuestion {
-  @Prop({ type: String, required: true })
-  question: string;
-
-  @Prop({
-    type: String,
-    enum: ['single-choice', 'multiple-choice', 'text'],
-    required: true,
-  })
-  questionType: string;
-
-  @Prop({ type: [String], required: false })
-  options: string[]; // For multiple-choice and single-choice questions
-
-  @Prop({ type: Boolean, default: false })
-  required: boolean; // Whether the question is mandatory
-
-  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
-  createdBy: Types.ObjectId; // Admin who created the question
-
-  @Prop({ type: Boolean, default: true })
-  isActive: boolean; // Flag to indicate if the question is active or deleted
+export enum QuestionType {
+  SINGLE_CHOICE = 'single-choice',
+  MULTIPLE_CHOICE = 'multiple-choice',
+  TEXT = 'text',
 }
 
+@Schema()
+export class Question {
+  @Prop({ default: uuidv4 }) // Auto-generate unique question ID
+  questionId: string;
+
+  @Prop({ required: true })
+  question: string;
+
+  @Prop({ required: true, enum: QuestionType })
+  type: QuestionType;
+
+  @Prop({ type: [String], required: false }) // Only required for choice-based questions
+  options?: string[];
+}
+
+@Schema()
+export class DataEntryQuestion {
+  @Prop({ required: true })
+  title: string; // A title for the question set
+
+  @Prop({ type: [Question] }) // Array of questions
+  questions: Question[];
+}
+
+export type DataEntryDocument = DataEntryQuestion & Document;
 export const DataEntryQuestionSchema =
   SchemaFactory.createForClass(DataEntryQuestion);

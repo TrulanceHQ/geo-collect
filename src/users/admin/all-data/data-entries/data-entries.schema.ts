@@ -1,22 +1,33 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from 'src/auth/schema/user.schema';
 
-export type DataEntryDocument = DataEntry & Document;
+// @Schema({ timestamps: true })
+// export class DataEntryResponse extends Document {
+//   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+//   enumerator: Types.ObjectId;
 
-@Schema({ timestamps: true })
-export class DataEntry {
-  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
-  enumerator: Types.ObjectId; // Enumerator who submitted the entry
+//   @Prop({ type: Types.ObjectId, ref: 'DataEntryQuestion', required: true })
+//   question: Types.ObjectId;
 
-  @Prop({ type: [String], required: true })
-  answers: string[]; // List of answers corresponding to data entry questions
+//   @Prop({ required: true })
+//   response: string | string[]; // Text or array (for multiple-choice)
+// }
 
-  @Prop({ type: String, required: true })
-  formId: string; // Identifier for the form filled by the enumerator
+// export const DataEntryResponseSchema =
+//   SchemaFactory.createForClass(DataEntryResponse);
 
-  @Prop({ type: Boolean, default: true })
-  isValid: boolean; // Whether the entry passed validation checks
+@Schema()
+export class SurveyResponse {
+  @Prop({ required: true })
+  enumeratorId: string;
+
+  @Prop({ required: true })
+  surveyId: string;
+
+  @Prop({ type: [{ questionId: String, answer: [String] }] })
+  responses: { questionId: string; answer: string | string[] }[];
 }
 
-export const DataEntrySchema = SchemaFactory.createForClass(DataEntry);
+export type ResponseDocument = SurveyResponse & Document;
+export const SurveyResponseSchema =
+  SchemaFactory.createForClass(SurveyResponse);
