@@ -6,7 +6,7 @@ export enum QuestionType {
   SINGLE_CHOICE = 'single-choice',
   MULTIPLE_CHOICE = 'multiple-choice',
   TEXT = 'text',
-  LIKERT_SCALE = 'likert-scale', // Add this line
+  LIKERT_SCALE = 'likert-scale',
 }
 
 export enum MediaType {
@@ -26,32 +26,29 @@ export class Question {
   @Prop({ required: true, enum: QuestionType })
   type: QuestionType;
 
-  // @Prop({ type: [String], required: false }) // Only required for choice-based questions
-  // options?: string[];
   @Prop({ type: [String], default: undefined }) // Excludes the field if empty
   options?: string[];
 
   // Likert scale specific properties
   @Prop({ type: [{ question: String, options: [String] }], required: false })
   likertQuestions?: { question: string; options: string[] }[];
-  // likertQuestions?: { question: String; options: [String] }[];
 
-  @Prop({ enum: MediaType, required: false }) // Optional media type (image, video, audio)
+  @Prop({ enum: MediaType, required: false })
   mediaType?: MediaType;
 
-  @Prop({ type: String, required: false }) // Optional intrusion/description for media
+  @Prop({ type: String, required: false })
   mediaInstruction?: string;
 }
 
 @Schema()
 export class DataEntryQuestion {
   @Prop({ required: true })
-  title: string; // A title for the question set
+  title: string;
 
   @Prop({ required: true })
-  subtitle: string; // A subtitle for the question set
+  subtitle: string;
 
-  @Prop({ type: [Question] }) // Array of questions
+  @Prop({ type: [Question] })
   questions: Question[];
 }
 

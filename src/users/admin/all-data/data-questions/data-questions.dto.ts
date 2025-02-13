@@ -26,14 +26,6 @@ export class QuestionDto {
   @IsEnum(QuestionType)
   type: QuestionType;
 
-  // @ApiProperty({
-  //   example: ['Red', 'Blue', 'Green'],
-  //   required: false,
-  //   description: 'Choices for single/multiple-choice questions',
-  // })
-  // @IsArray()
-  // @IsOptional()
-  // options?: string[];
   @ApiProperty({
     example: ['Red', 'Blue', 'Green'],
     required: false,
@@ -68,25 +60,6 @@ export class QuestionDto {
   @IsArray()
   @IsOptional()
   likertQuestions?: { question: string; options: string[] }[];
-
-  // @ApiProperty({
-  //   example: 'image',
-  //   enum: MediaType,
-  //   description: 'Type of media for the question (e.g., image, video, audio)',
-  //   required: false,
-  // })
-  // @IsEnum(MediaType)
-  // @IsOptional()
-  // mediaType?: MediaType;
-
-  // @ApiProperty({
-  //   example: 'This question relates to a promotional video.',
-  //   description: 'Intrusion or description of media (if applicable)',
-  //   required: false,
-  // })
-  // @IsString()
-  // @IsOptional()
-  // mediaIntruction?: string;
 }
 
 export class CreateDataEntryQuestionDto {
