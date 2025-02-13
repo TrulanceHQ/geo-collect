@@ -16,11 +16,11 @@ export class ResetPasswordDto {
   emailAddress: string;
 
   @ApiProperty({
-    description: 'Enter the reset code sent to the email address',
+    description: 'Enter the reset token sent to the email address',
   })
   @IsString()
   @IsNotEmpty()
-  code: string;
+  token: string;
 
   @ApiProperty({
     description:
