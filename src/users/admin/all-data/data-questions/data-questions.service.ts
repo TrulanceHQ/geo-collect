@@ -1,25 +1,3 @@
-// import { Injectable } from '@nestjs/common';
-// import { InjectModel } from '@nestjs/mongoose';
-// import { Model } from 'mongoose';
-// import { DataEntryQuestion, QuestionType } from './data-questions.schema';
-// import { CreateDataEntryQuestionDto } from './data-questions.dto';
-
-// @Injectable()
-// export class DataEntryQuestionsService {
-//   constructor(
-//     @InjectModel(DataEntryQuestion.name)
-//     private questionModel: Model<DataEntryQuestion>,
-//   ) {}
-
-//   async createQuestion(dto: CreateDataEntryQuestionDto) {
-//     return this.questionModel.create(dto);
-//   }
-
-//   async getAllQuestions() {
-//     return this.questionModel.find();
-//   }
-// }
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -37,23 +15,20 @@ export class DataEntryQuestionsService {
   async createQuestionSet(
     dto: CreateDataEntryQuestionDto,
   ): Promise<DataEntryQuestion> {
-    const questionsWithIds = dto.questions.map((q) => ({
-      ...q,
-      questionId: uuidv4(),
-    }));
+    // const questionsWithIds = dto.questions.map((q) => ({
+    //   ...q,
+    //   questionId: uuidv4(),
+    // }));
 
     const newEntry = new this.dataEntryModel({
       title: dto.title,
       subtitle: dto.subtitle,
-      questions: questionsWithIds,
+      questions: dto.questions,
+      // questions: questionsWithIds,
     });
 
     return newEntry.save();
   }
-
-  //   async updateQuestionSet(id: string, dto: CreateDataEntryQuestionDto): Promise<DataEntryQuestion> {
-  //     return this.dataEntryModel.findByIdAndUpdate(id, { $set: dto }, { new: true });
-  //   }
 
   async getAllQuestionSets(): Promise<DataEntryQuestion[]> {
     return this.dataEntryModel.find().exec();
@@ -74,12 +49,18 @@ export class DataEntryQuestionsService {
     const updatedEntry = await this.dataEntryModel
       .findByIdAndUpdate(
         id,
+        // {
+        //   title: dto.title,
+        //   questions: dto.questions.map((q) => ({
+        //     ...q,
+        //     questionId: uuidv4(),
+        //   })),
+        // },
+        // { new: true },
         {
           title: dto.title,
-          questions: dto.questions.map((q) => ({
-            ...q,
-            questionId: uuidv4(),
-          })),
+          subtitle: dto.subtitle,
+          questions: dto.questions, // Keep existing questionId values
         },
         { new: true },
       )

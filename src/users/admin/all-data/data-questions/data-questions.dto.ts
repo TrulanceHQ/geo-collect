@@ -5,6 +5,7 @@ import {
   ValidateNested,
   IsEnum,
   IsOptional,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { QuestionType, MediaType } from './data-questions.schema';
@@ -25,6 +26,14 @@ export class QuestionDto {
   @IsEnum(QuestionType)
   type: QuestionType;
 
+  // @ApiProperty({
+  //   example: ['Red', 'Blue', 'Green'],
+  //   required: false,
+  //   description: 'Choices for single/multiple-choice questions',
+  // })
+  // @IsArray()
+  // @IsOptional()
+  // options?: string[];
   @ApiProperty({
     example: ['Red', 'Blue', 'Green'],
     required: false,
@@ -32,26 +41,52 @@ export class QuestionDto {
   })
   @IsArray()
   @IsOptional()
+  @ValidateIf(
+    (o) =>
+      o.type === QuestionType.SINGLE_CHOICE ||
+      o.type === QuestionType.MULTIPLE_CHOICE,
+  ) // Ensures `options` only exists for these types
   options?: string[];
 
+  // Likert scale specific properties
   @ApiProperty({
-    example: 'image',
-    enum: MediaType,
-    description: 'Type of media for the question (e.g., image, video, audio)',
+    example: [
+      {
+        question: 'Rate your experience with our product',
+        options: [
+          'Strongly Disagree',
+          'Disagree',
+          'Neutral',
+          'Agree',
+          'Strongly Agree',
+        ],
+      },
+    ],
     required: false,
+    description: 'Likert scale questions with options',
   })
-  @IsEnum(MediaType)
+  @IsArray()
   @IsOptional()
-  mediaType?: MediaType;
+  likertQuestions?: { question: string; options: string[] }[];
 
-  @ApiProperty({
-    example: 'This question relates to a promotional video.',
-    description: 'Intrusion or description of media (if applicable)',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  mediaIntruction?: string;
+  // @ApiProperty({
+  //   example: 'image',
+  //   enum: MediaType,
+  //   description: 'Type of media for the question (e.g., image, video, audio)',
+  //   required: false,
+  // })
+  // @IsEnum(MediaType)
+  // @IsOptional()
+  // mediaType?: MediaType;
+
+  // @ApiProperty({
+  //   example: 'This question relates to a promotional video.',
+  //   description: 'Intrusion or description of media (if applicable)',
+  //   required: false,
+  // })
+  // @IsString()
+  // @IsOptional()
+  // mediaIntruction?: string;
 }
 
 export class CreateDataEntryQuestionDto {
@@ -77,54 +112,22 @@ export class CreateDataEntryQuestionDto {
   @ValidateNested({ each: true })
   @Type(() => QuestionDto)
   questions: QuestionDto[];
+  @ApiProperty({
+    example: 'image',
+    enum: MediaType,
+    description: 'Type of media for the entire survey (Optional)',
+    required: false,
+  })
+  @IsEnum(MediaType)
+  @IsOptional()
+  mediaType?: MediaType;
+
+  @ApiProperty({
+    example: 'This survey includes a promotional video.',
+    description: 'Instruction for media (if applicable)',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  mediaInstruction?: string;
 }
-// class QuestionDto {
-//   @ApiProperty({
-//     example: 'What is your favorite color?',
-//     description: 'The survey question',
-//   })
-//   @IsString()
-//   question: string;
-
-//   @ApiProperty({
-//     enum: QuestionType,
-//     example: QuestionType.SINGLE_CHOICE,
-//     description: 'Type of question',
-//   })
-//   @IsEnum(QuestionType)
-//   type: QuestionType;
-
-//   @ApiProperty({
-//     example: ['Red', 'Blue', 'Green'],
-//     required: false,
-//     description: 'Choices for single/multiple-choice questions',
-//   })
-//   @IsArray()
-//   @IsOptional()
-//   options?: string[];
-// }
-
-// export class CreateDataEntryQuestionDto {
-//   @ApiProperty({
-//     example: 'User Preferences Survey',
-//     description: 'The title of the question set',
-//   })
-//   @IsString()
-//   title: string;
-
-//   @ApiProperty({
-//     example: 'User Preferences Survey',
-//     description: 'The subtitle of the question set',
-//   })
-//   @IsString()
-//   subtitle: string;
-
-//   @ApiProperty({
-//     type: [QuestionDto],
-//     description: 'Array of survey questions',
-//   })
-//   @IsArray()
-//   @ValidateNested({ each: true })
-//   @Type(() => QuestionDto)
-//   questions: QuestionDto[];
-// }
