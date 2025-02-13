@@ -107,7 +107,7 @@ export class UsersController {
 
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)
-  @Post('/login')
+  @Post('login')
   @ApiOperation({ summary: 'Log in a user' })
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({ status: 200, description: 'Login successful' })

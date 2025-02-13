@@ -20,6 +20,13 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT') || 3001;
 
+  // Enable CORS
+  app.enableCors({
+    origin: '*', // Allow all origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Data Collection App (Web)')
     .setDescription(
