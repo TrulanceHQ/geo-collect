@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 export enum QuestionType {
   SINGLE_CHOICE = 'single-choice',
   MULTIPLE_CHOICE = 'multiple-choice',
+  // CHECKBOX = 'checkbox', // New type added
   TEXT = 'text',
 }
 
@@ -56,11 +57,24 @@ export class Question {
   @Prop({ type: [String], required: false }) // Only required for choice-based questions
   options?: string[];
 
+  // @Prop({
+  //   type: [String],
+  //   required: function (this: Question) {
+  //     return (
+  //       this.type === QuestionType.MULTIPLE_CHOICE ||
+  //       this.type === QuestionType.CHECKBOX ||
+  //       this.type === QuestionType.SINGLE_CHOICE ||
+  //       this.type === QuestionType.TEXT
+  //     );
+  //   },
+  // })
+  // options?: string[];
+
   @Prop({ enum: MediaType, required: false }) // Optional media type (image, video, audio)
   mediaType?: MediaType;
 
   @Prop({ type: String, required: false }) // Optional intrusion/description for media
-  mediaIntrustion?: string;
+  mediaInstruction?: string;
 }
 
 @Schema()

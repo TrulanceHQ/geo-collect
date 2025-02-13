@@ -51,7 +51,7 @@ export class QuestionDto {
   })
   @IsString()
   @IsOptional()
-  mediaIntrustion?: string;
+  mediaIntruction?: string;
 }
 
 export class CreateDataEntryQuestionDto {
