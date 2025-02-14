@@ -49,7 +49,7 @@ import { EmailUtil } from './utils/email/email.util';
         transport: {
           host: configService.get<string>('MAIL_HOST'),
           port: configService.get<number>('MAIL_PORT'),
-          secure: false, // true for 465, false for other ports
+          secure: true, // true for 465, false for other ports
           auth: {
             user: configService.get<string>('MAIL_USER'),
             pass: configService.get<string>('MAIL_PASS'),

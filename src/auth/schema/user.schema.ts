@@ -4,6 +4,7 @@ import { Document } from 'mongoose';
 export enum UserRole {
   ADMIN = 'admin',
   ENUMERATOR = 'enumerator',
+  FIELDCOORDINATOR = 'fieldCoordinator',
 }
 
 export enum Gender {

@@ -15,4 +15,9 @@ export class CreateUserDto {
   @IsEnum(UserRole)
   @IsNotEmpty()
   readonly role: UserRole;
+
+  @ApiProperty({ enum: UserRole, description: 'Role of the creator' })
+  @IsEnum(UserRole)
+  @IsNotEmpty()
+  readonly creatorRole: UserRole;
 }

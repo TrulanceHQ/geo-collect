@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 /* eslint-disable prettier/prettier */
 import {
   Injectable,
@@ -5,6 +6,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -19,6 +21,7 @@ import { CloudinaryService } from 'src/utils/cloudinary/cloudinary.service';
 import { UpdateUserDto } from './dto/updateuser.dto';
 import { generateStrongPassword } from 'src/utils/password.utils';
 import { v4 as uuidv4 } from 'uuid';
+import { ResetPasswordDto } from './dto/resetpassword.dto';
 export interface LoginResponse {
   accessToken: string;
   user: User;
@@ -50,16 +53,58 @@ export class AuthService {
       isVerified: false,
     });
 
-    // console.log(temporaryPassword);
+    // Log the temporary password and role to the console
+    console.log(
+      `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
+    );
+    console.log(`Role: ${createUserDto.role}`);
+
     // await this.emailUtil.sendEmail(
     //   createUserDto.emailAddress,
     //   'Account Created - Temporary Password',
     //   'temporary-password',
     //   {
     //     password: temporaryPassword,
-    //     role: createUserDto.role,
+    //     role: createUserDto.role
     //   },
     // );
+
+    return createdUser.save();
+  }
+
+  async createEnumeratorByFieldCoordinator(
+    createUserDto: CreateUserDto,
+  ): Promise<User> {
+    const existingUser = await this.userModel
+      .findOne({ emailAddress: createUserDto.emailAddress })
+      .exec();
+    if (existingUser) {
+      throw new ConflictException(
+        'Email address has been used by another customer',
+      );
+    }
+
+    // Ensure the role is enumerator
+    if (createUserDto.role !== 'enumerator') {
+      throw new ForbiddenException(
+        'Field coordinators can only create enumerators',
+      );
+    }
+
+    const temporaryPassword = generateStrongPassword();
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+    const createdUser = new this.userModel({
+      ...createUserDto,
+      password: hashedPassword,
+      isVerified: false,
+    });
+
+    // Log the temporary password and role to the console
+    console.log(
+      `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
+    );
+    console.log(`Role: ${createUserDto.role}`);
 
     return createdUser.save();
   }
@@ -96,48 +141,41 @@ export class AuthService {
     }
     const resetToken = uuidv4();
     const resetTokenExpires = new Date();
-    resetTokenExpires.setMinutes(resetTokenExpires.getMinutes() + 30);
+    resetTokenExpires.setMinutes(resetTokenExpires.getMinutes() + 5);
 
     user.resetToken = resetToken;
     user.resetTokenExpires = resetTokenExpires;
     await user.save();
 
-    const resetLink = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.FRONTEND_URL}?token=${resetToken}`;
 
     await this.emailUtil.sendResetPasswordEmail(
       emailAddress,
       'Password Reset Request',
-      'rest-password',
+      'reset-password',
       { resetLink },
     );
-    // await this.emailUtil.sendEmail(
-    //   emailAddress,
-    //   'Reset Password',
-    //   'reset-password',
-    //   { code: resetCode },
-    // );
 
     return;
   }
-  async resetPassword(
-    emailAddress: string,
-    code: string,
-    newPassword: string,
-  ): Promise<void> {
-    const user = await this.userModel.findOne({ emailAddress }).exec();
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<void> {
+    const user = await this.userModel
+      .findOne({
+        emailAddress: resetPasswordDto.emailAddress,
+        resetToken: resetPasswordDto.token,
+      })
+      .exec();
     if (
-      user.resetToken !== code ||
+      !user ||
       !user.resetTokenExpires ||
       user.resetTokenExpires < new Date()
     ) {
-      throw new BadRequestException('Invalid or expired reset code');
+      throw new BadRequestException('Invalid or expired reset token');
     }
 
     const isSameAsOldPassword = await bcrypt.compare(
-      newPassword,
+      resetPasswordDto.newPassword,
       user.password,
     );
     if (isSameAsOldPassword) {
@@ -145,7 +183,7 @@ export class AuthService {
         'New password cannot be the same as the old password',
       );
     }
-    user.password = await bcrypt.hash(newPassword, 10);
+    user.password = await bcrypt.hash(resetPasswordDto.newPassword, 10);
     user.resetToken = undefined;
     user.resetTokenExpires = undefined;
     await user.save();

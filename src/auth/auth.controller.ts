@@ -9,6 +9,8 @@ import {
   Param,
   UploadedFile,
   UseInterceptors,
+  // Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,6 +25,7 @@ import { LocalAuthGuard } from 'src/utils/localguard/local-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RolesGuard } from 'src/utils/roles/roles.guard';
 import { Roles } from 'src/utils/roles/roles.decorator';
+// import { RequestWithUser } from './interfaces/request-with-user.interface';
 // import { VerifyEmailDto } from './dto/verifyemail.dto';
 import { CreateUserDto } from './dto/createuser.dto';
 import { LoginUserDto } from './dto/login.dto';
@@ -30,6 +33,7 @@ import { UpdateUserDto } from './dto/updateuser.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 import { ChangePasswordDto } from './dto/changepassword.dto';
+import { UserRole } from './schema/user.schema';
 // import { ResendVerificationCodeDto } from './dto/resendverificationcode.dto';
 
 @ApiTags('Auth')
@@ -45,7 +49,25 @@ export class UsersController {
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({ status: 409, description: 'Conflict: Email already exists' })
   async create(@Body() userDto: CreateUserDto) {
+    const { creatorRole } = userDto;
+    if (creatorRole !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admins can create users');
+    }
     return this.authService.createUserByAdmin(userDto);
+  }
+  @Roles('fieldCoordinator')
+  @Post('create-enumerator')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, description: 'User successfully created' })
+  @ApiResponse({ status: 409, description: 'Conflict: Email already exists' })
+  async createEnumerator(@Body() userDto: CreateUserDto) {
+    const { creatorRole } = userDto;
+    if (creatorRole !== UserRole.FIELDCOORDINATOR) {
+      throw new ForbiddenException(
+        'Only field coordinators can create enumerators',
+      );
+    }
+    return this.authService.createEnumeratorByFieldCoordinator(userDto);
   }
 
   // @Post('/verify-email')
@@ -85,7 +107,7 @@ export class UsersController {
 
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)
-  @Post('/login')
+  @Post('login')
   @ApiOperation({ summary: 'Log in a user' })
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({ status: 200, description: 'Login successful' })
@@ -142,8 +164,7 @@ export class UsersController {
   @ApiResponse({ status: 400, description: 'Invalid or expired reset code' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    const { emailAddress, code, newPassword } = resetPasswordDto;
-    await this.authService.resetPassword(emailAddress, code, newPassword);
+    await this.authService.resetPassword(resetPasswordDto);
     return { message: 'Password reset successfully' };
   }
 
