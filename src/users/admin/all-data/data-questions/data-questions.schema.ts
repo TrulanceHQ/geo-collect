@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 
 export enum QuestionType {
   SINGLE_CHOICE = 'single-choice',
@@ -17,30 +16,48 @@ export enum MediaType {
 
 @Schema()
 export class Question {
-  // @Prop({ default: uuidv4 }) // Auto-generate unique question ID
-  // questionId: string;
-
   @Prop({ required: true })
   question: string;
 
   @Prop({ required: true, enum: QuestionType })
   type: QuestionType;
 
-  @Prop({ type: [String], default: undefined }) // Excludes the field if empty
+  @Prop({
+    type: [String],
+    default: undefined, // ⬅ Ensures it's omitted if empty
+  })
   options?: string[];
 
-  // Likert scale specific properties
-  @Prop({ type: [{ question: String, options: [String] }], required: false })
+  @Prop({
+    type: [{ question: String, options: [String] }],
+    default: undefined, // ⬅ Ensures it's omitted if empty
+  })
   likertQuestions?: { question: string; options: string[] }[];
-
-  @Prop({ enum: MediaType, required: false })
-  mediaType?: MediaType;
-
-  @Prop({ type: String, required: false })
-  mediaInstruction?: string;
 }
 
-@Schema()
+@Schema({
+  toJSON: {
+    transform: (_, ret) => {
+      if (ret.questions) {
+        ret.questions = ret.questions.map((q) => {
+          // Remove empty likertQuestions
+          if (
+            Array.isArray(q.likertQuestions) &&
+            q.likertQuestions.length === 0
+          ) {
+            delete q.likertQuestions;
+          }
+          // Remove empty options
+          if (Array.isArray(q.options) && q.options.length === 0) {
+            delete q.options;
+          }
+          return q;
+        });
+      }
+      return ret;
+    },
+  },
+})
 export class DataEntryQuestion {
   @Prop({ required: true })
   title: string;

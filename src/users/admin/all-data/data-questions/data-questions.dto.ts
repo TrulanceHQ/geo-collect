@@ -6,6 +6,8 @@ import {
   IsEnum,
   IsOptional,
   ValidateIf,
+  IsNotEmpty,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { QuestionType, MediaType } from './data-questions.schema';
@@ -16,6 +18,7 @@ export class QuestionDto {
     description: 'The survey question',
   })
   @IsString()
+  @IsNotEmpty()
   question: string;
 
   @ApiProperty({
@@ -26,21 +29,22 @@ export class QuestionDto {
   @IsEnum(QuestionType)
   type: QuestionType;
 
+  // Validate options only when type is SINGLE_CHOICE or MULTIPLE_CHOICE
   @ApiProperty({
     example: ['Red', 'Blue', 'Green'],
     required: false,
     description: 'Choices for single/multiple-choice questions',
   })
   @IsArray()
-  @IsOptional()
+  @ArrayNotEmpty()
   @ValidateIf(
     (o) =>
       o.type === QuestionType.SINGLE_CHOICE ||
       o.type === QuestionType.MULTIPLE_CHOICE,
-  ) // Ensures `options` only exists for these types
+  )
   options?: string[];
 
-  // Likert scale specific properties
+  // Validate likertQuestions only when type is LIKERT_SCALE
   @ApiProperty({
     example: [
       {
@@ -58,8 +62,20 @@ export class QuestionDto {
     description: 'Likert scale questions with options',
   })
   @IsArray()
-  @IsOptional()
+  @ArrayNotEmpty()
+  @ValidateIf((o) => o.type === QuestionType.LIKERT_SCALE)
+  @Type(() => Object)
   likertQuestions?: { question: string; options: string[] }[];
+
+  // Ensure TEXT type does not include options or likertQuestions
+  @ValidateIf((o) => o.type === QuestionType.TEXT)
+  validateTextQuestion() {
+    if (this.options || this.likertQuestions) {
+      throw new Error(
+        'Text questions should not have options or likertQuestions',
+      );
+    }
+  }
 }
 
 export class CreateDataEntryQuestionDto {
@@ -85,6 +101,7 @@ export class CreateDataEntryQuestionDto {
   @ValidateNested({ each: true })
   @Type(() => QuestionDto)
   questions: QuestionDto[];
+
   @ApiProperty({
     example: 'image',
     enum: MediaType,
