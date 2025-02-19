@@ -15,7 +15,8 @@ export class NgStatesService {
     @InjectModel(NgStates.name) private readonly statesModel: Model<NgStates>,
   ) {}
 
-  async createState(createStateDto: CreateStateDto, adminId: string) {
+  async createState(createStateDto: CreateStateDto) {
+    // async createState(createStateDto: CreateStateDto, adminId: string) {
     // for (const state of createStateDto.ngstates) {
     // const existingState = await this.statesModel
     //   .findOne({ states: state })
@@ -29,15 +30,16 @@ export class NgStatesService {
     if (existingState) {
       throw new ConflictException(`One of the states already exists.`);
     }
+    // const createdStates = await this.statesModel.create({
+    //   ngstates: createStateDto.ngstates,
+    //   createdBy: new Types.ObjectId(adminId), // Store the admin's ID
+    // });
 
-    // }
-    // Create new states and associate with the admin
-    const createdStates = await this.statesModel.create({
+    // return createdStates;
+    // Create the state without linking to an admin
+    return this.statesModel.create({
       ngstates: createStateDto.ngstates,
-      createdBy: new Types.ObjectId(adminId), // Store the admin's ID
     });
-
-    return createdStates;
   }
 
   async updateState(
@@ -67,7 +69,9 @@ export class NgStatesService {
     // Save the updated state
     // await existingState.save();
     // return existingState;
-    existingState.createdBy = new Types.ObjectId(adminId); // Track the admin who updated
+
+    //removed
+    // existingState.createdBy = new Types.ObjectId(adminId); // Track the admin who updated
     await existingState.save();
 
     return existingState;

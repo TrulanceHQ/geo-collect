@@ -10,7 +10,7 @@ import {
   ArrayNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { QuestionType, MediaType } from './data-questions.schema';
+import { QuestionType } from './data-questions.schema';
 
 export class QuestionDto {
   @ApiProperty({
@@ -76,6 +76,41 @@ export class QuestionDto {
       );
     }
   }
+  //new
+  // @ApiProperty({
+  //   example: true,
+  //   required: false,
+  //   description: 'Indicates if media input is required',
+  // })
+  // @IsOptional()
+  // requiresMedia?: boolean;
+
+  //newest
+  // New properties for media recording
+  // @ApiProperty({
+  //   example: true,
+  //   description: 'Enable audio recording',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // allowAudio?: boolean;
+
+  // @ApiProperty({
+  //   example: true,
+  //   description: 'Enable video recording',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // allowVideo?: boolean;
+
+  // @ApiProperty({
+  //   example: true,
+  //   description: 'Enable image capturing',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // allowImage?: boolean;
+  // Validation for Media recording questions
 }
 
 export class CreateDataEntryQuestionDto {
@@ -102,16 +137,39 @@ export class CreateDataEntryQuestionDto {
   @Type(() => QuestionDto)
   questions: QuestionDto[];
 
+  // @ApiProperty({
+  //   example: 'image',
+  //   enum: MediaType,
+  //   description: 'Type of media for the entire survey (Optional)',
+  //   required: false,
+  // })
+  // @IsEnum(MediaType)
+  // @IsOptional()
+  // mediaType?: MediaType;
+
   @ApiProperty({
-    example: 'image',
-    enum: MediaType,
-    description: 'Type of media for the entire survey (Optional)',
+    example: true,
+    description: 'Enable audio recording',
     required: false,
   })
-  @IsEnum(MediaType)
   @IsOptional()
-  mediaType?: MediaType;
+  allowAudio?: boolean;
 
+  @ApiProperty({
+    example: true,
+    description: 'Enable video recording',
+    required: false,
+  })
+  @IsOptional()
+  allowVideo?: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Enable image capturing',
+    required: false,
+  })
+  @IsOptional()
+  allowImage?: boolean;
   @ApiProperty({
     example: 'This survey includes a promotional video.',
     description: 'Instruction for media (if applicable)',

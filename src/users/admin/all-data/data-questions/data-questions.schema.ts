@@ -6,13 +6,16 @@ export enum QuestionType {
   MULTIPLE_CHOICE = 'multiple-choice',
   TEXT = 'text',
   LIKERT_SCALE = 'likert-scale',
+  RECORD_AUDIO = 'record-audio',
+  RECORD_VIDEO = 'record-video',
+  TAKE_PICTURE = 'take-picture',
 }
 
-export enum MediaType {
-  IMAGE = 'image',
-  VIDEO = 'video',
-  AUDIO = 'audio',
-}
+// export enum MediaType {
+//   IMAGE = 'image',
+//   VIDEO = 'video',
+//   AUDIO = 'audio',
+// }
 
 @Schema()
 export class Question {
