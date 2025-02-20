@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from 'src/utils/roles/roles.guard';
 import { LocalStrategy } from 'src/utils/localguard/local.strategy';
 import { EmailModule } from 'src/utils/email/email.module';
+import { JwtAuthGuard } from 'src/utils/JwtAuthGuard';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { EmailModule } from 'src/utils/email/email.module';
     CloudinaryModule,
   ],
   controllers: [UsersController],
-  providers: [AuthService, LocalStrategy, RolesGuard],
-  exports: [AuthService],
+  providers: [AuthService, LocalStrategy, RolesGuard, JwtAuthGuard],
+  exports: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {}

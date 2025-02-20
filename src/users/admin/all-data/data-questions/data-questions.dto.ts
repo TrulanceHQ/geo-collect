@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
@@ -76,41 +77,6 @@ export class QuestionDto {
       );
     }
   }
-  //new
-  // @ApiProperty({
-  //   example: true,
-  //   required: false,
-  //   description: 'Indicates if media input is required',
-  // })
-  // @IsOptional()
-  // requiresMedia?: boolean;
-
-  //newest
-  // New properties for media recording
-  // @ApiProperty({
-  //   example: true,
-  //   description: 'Enable audio recording',
-  //   required: false,
-  // })
-  // @IsOptional()
-  // allowAudio?: boolean;
-
-  // @ApiProperty({
-  //   example: true,
-  //   description: 'Enable video recording',
-  //   required: false,
-  // })
-  // @IsOptional()
-  // allowVideo?: boolean;
-
-  // @ApiProperty({
-  //   example: true,
-  //   description: 'Enable image capturing',
-  //   required: false,
-  // })
-  // @IsOptional()
-  // allowImage?: boolean;
-  // Validation for Media recording questions
 }
 
 export class CreateDataEntryQuestionDto {
@@ -179,3 +145,39 @@ export class CreateDataEntryQuestionDto {
   @IsOptional()
   mediaInstruction?: string;
 }
+
+//new
+// @ApiProperty({
+//   example: true,
+//   required: false,
+//   description: 'Indicates if media input is required',
+// })
+// @IsOptional()
+// requiresMedia?: boolean;
+
+//newest
+// New properties for media recording
+// @ApiProperty({
+//   example: true,
+//   description: 'Enable audio recording',
+//   required: false,
+// })
+// @IsOptional()
+// allowAudio?: boolean;
+
+// @ApiProperty({
+//   example: true,
+//   description: 'Enable video recording',
+//   required: false,
+// })
+// @IsOptional()
+// allowVideo?: boolean;
+
+// @ApiProperty({
+//   example: true,
+//   description: 'Enable image capturing',
+//   required: false,
+// })
+// @IsOptional()
+// allowImage?: boolean;
+// Validation for Media recording questions
