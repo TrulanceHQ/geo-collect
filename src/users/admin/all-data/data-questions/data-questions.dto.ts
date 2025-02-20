@@ -7,9 +7,11 @@ import {
   IsEnum,
   IsOptional,
   ValidateIf,
+  IsNotEmpty,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { QuestionType, MediaType } from './data-questions.schema';
+import { QuestionType } from './data-questions.schema';
 
 export class QuestionDto {
   @ApiProperty({
@@ -17,6 +19,7 @@ export class QuestionDto {
     description: 'The survey question',
   })
   @IsString()
+  @IsNotEmpty()
   question: string;
 
   @ApiProperty({
@@ -27,21 +30,22 @@ export class QuestionDto {
   @IsEnum(QuestionType)
   type: QuestionType;
 
+  // Validate options only when type is SINGLE_CHOICE or MULTIPLE_CHOICE
   @ApiProperty({
     example: ['Red', 'Blue', 'Green'],
     required: false,
     description: 'Choices for single/multiple-choice questions',
   })
   @IsArray()
-  @IsOptional()
+  @ArrayNotEmpty()
   @ValidateIf(
     (o) =>
       o.type === QuestionType.SINGLE_CHOICE ||
       o.type === QuestionType.MULTIPLE_CHOICE,
-  ) // Ensures `options` only exists for these types
+  )
   options?: string[];
 
-  // Likert scale specific properties
+  // Validate likertQuestions only when type is LIKERT_SCALE
   @ApiProperty({
     example: [
       {
@@ -59,8 +63,55 @@ export class QuestionDto {
     description: 'Likert scale questions with options',
   })
   @IsArray()
-  @IsOptional()
+  @ArrayNotEmpty()
+  @ValidateIf((o) => o.type === QuestionType.LIKERT_SCALE)
+  @Type(() => Object)
   likertQuestions?: { question: string; options: string[] }[];
+
+  // Ensure TEXT type does not include options or likertQuestions
+  @ValidateIf((o) => o.type === QuestionType.TEXT)
+  validateTextQuestion() {
+    if (this.options || this.likertQuestions) {
+      throw new Error(
+        'Text questions should not have options or likertQuestions',
+      );
+    }
+  }
+  //new
+  // @ApiProperty({
+  //   example: true,
+  //   required: false,
+  //   description: 'Indicates if media input is required',
+  // })
+  // @IsOptional()
+  // requiresMedia?: boolean;
+
+  //newest
+  // New properties for media recording
+  // @ApiProperty({
+  //   example: true,
+  //   description: 'Enable audio recording',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // allowAudio?: boolean;
+
+  // @ApiProperty({
+  //   example: true,
+  //   description: 'Enable video recording',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // allowVideo?: boolean;
+
+  // @ApiProperty({
+  //   example: true,
+  //   description: 'Enable image capturing',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // allowImage?: boolean;
+  // Validation for Media recording questions
 }
 
 export class CreateDataEntryQuestionDto {
@@ -86,16 +137,40 @@ export class CreateDataEntryQuestionDto {
   @ValidateNested({ each: true })
   @Type(() => QuestionDto)
   questions: QuestionDto[];
+
+  // @ApiProperty({
+  //   example: 'image',
+  //   enum: MediaType,
+  //   description: 'Type of media for the entire survey (Optional)',
+  //   required: false,
+  // })
+  // @IsEnum(MediaType)
+  // @IsOptional()
+  // mediaType?: MediaType;
+
   @ApiProperty({
-    example: 'image',
-    enum: MediaType,
-    description: 'Type of media for the entire survey (Optional)',
+    example: true,
+    description: 'Enable audio recording',
     required: false,
   })
-  @IsEnum(MediaType)
   @IsOptional()
-  mediaType?: MediaType;
+  allowAudio?: boolean;
 
+  @ApiProperty({
+    example: true,
+    description: 'Enable video recording',
+    required: false,
+  })
+  @IsOptional()
+  allowVideo?: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Enable image capturing',
+    required: false,
+  })
+  @IsOptional()
+  allowImage?: boolean;
   @ApiProperty({
     example: 'This survey includes a promotional video.',
     description: 'Instruction for media (if applicable)',

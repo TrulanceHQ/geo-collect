@@ -29,6 +29,9 @@ export class User extends Document {
   @Prop({ required: true, enum: UserRole })
   role: UserRole;
 
+  @Prop({ required: false, enum: UserRole })
+  creatorRole: UserRole; // <-- Add this field
+
   @Prop({ default: false })
   isActive: boolean;
 
