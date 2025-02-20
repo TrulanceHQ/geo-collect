@@ -55,6 +55,7 @@ export class UsersController {
     }
     return this.authService.createUserByAdmin(userDto);
   }
+
   @Roles('fieldCoordinator')
   @Post('create-enumerator')
   @ApiOperation({ summary: 'Register a new user' })
