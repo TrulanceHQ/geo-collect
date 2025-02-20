@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DataEntryQuestion, DataEntryDocument } from './data-questions.schema';
 import { CreateDataEntryQuestionDto } from './data-questions.dto';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class DataEntryQuestionsService {
