@@ -35,7 +35,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Create a set of questions' })
   @ApiResponse({
     status: 201,
-    description: 'The question set has been successfully created.',
+    description: 'The question set has been successfullyr created.',
   })
   createQuestionSet(@Body() dto: CreateDataEntryQuestionDto) {
     return this.questionsService.createQuestionSet(dto);
