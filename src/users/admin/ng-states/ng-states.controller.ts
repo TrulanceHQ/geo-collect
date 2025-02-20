@@ -23,7 +23,7 @@ import { CreateStateDto, UpdateStateDto } from './ng-states.dto';
 
 @ApiTags('Admin - Manage States')
 @ApiBearerAuth()
-@Controller('api/v1/admin')
+@Controller('api/v1')
 @UseGuards(RolesGuard)
 export class NgStatesController {
   constructor(private readonly statesService: NgStatesService) {}

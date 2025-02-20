@@ -9,7 +9,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './schema/user.schema';
 import { ChangePasswordDto } from './dto/changepassword.dto';
@@ -58,6 +58,8 @@ export class AuthService {
       `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
     );
     console.log(`Role: ${createUserDto.role}`);
+    // Ensure the property name matches your DTO
+    console.log(`State: ${createUserDto.selectedState}`); // Log the selected state
 
     // await this.emailUtil.sendEmail(
     //   createUserDto.emailAddress,
@@ -74,6 +76,7 @@ export class AuthService {
 
   async createEnumeratorByFieldCoordinator(
     createUserDto: CreateUserDto,
+    // fieldCoordinatorId: string, // Accept fieldCoordinatorId here
   ): Promise<User> {
     const existingUser = await this.userModel
       .findOne({ emailAddress: createUserDto.emailAddress })
@@ -98,6 +101,7 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
       isVerified: false,
+      // fieldCoordinatorId, // Associate the fieldCoordinatorId to the new user
     });
 
     // Log the temporary password and role to the console
@@ -125,7 +129,11 @@ export class AuthService {
         emailAddress: user.emailAddress,
         sub: user._id,
         roles: user.role,
+        fieldCoordinatorId: user._id, // Add this field to the JWT payload
       };
+      // Log the payload before signing it
+      console.log('JWT Payload:', payload);
+
       const accessToken = this.jwtService.sign(payload);
       return { accessToken, user };
     }
@@ -198,6 +206,8 @@ export class AuthService {
     const query: Record<string, any> = { role, ...filter };
     return this.userModel.find(query).skip(skip).limit(limit).exec();
   }
+
+  //admin
   async findUserById(id: string): Promise<User> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -208,6 +218,156 @@ export class AuthService {
     }
     return user;
   }
+
+  //enum
+  async findEnumById(id: string, currentUserId: string): Promise<User> {
+    if (!isValidObjectId(id)) {
+      throw new ForbiddenException('Invalid user ID format');
+    }
+
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    // // Enumerator can only view their own details
+    // if (user._id.toString() !== currentUserId) {
+    //   throw new ForbiddenException(
+    //     "You are not authorized to access this user's details",
+    //   );
+    // }
+
+    // Type-cast user._id and creatorId to ObjectId before comparing them
+    const userId =
+      user._id instanceof Types.ObjectId ? user._id.toString() : user._id;
+    const creatorId =
+      user.creatorId instanceof Types.ObjectId
+        ? user.creatorId.toString()
+        : user.creatorId;
+
+    if (userId !== currentUserId && creatorId !== currentUserId) {
+      throw new ForbiddenException(
+        "You are not authorized to access this user's details",
+      );
+    }
+    return user;
+  }
+
+  //field coord
+
+  // Fetch a user by ID with specific permission logic for Field Coordinators
+  // async findFieldCoordById(id: string, currentUserId: string, role: string): Promise<User> {
+  //   if (!isValidObjectId(id)) {
+  //     throw new ForbiddenException('Invalid user ID format');
+  //   }
+
+  //   const user = await this.userModel.findById(id).exec();
+
+  //   if (!user) {
+  //     throw new ForbiddenException('User not found');
+  //   }
+  //   const userId =
+  //     user._id instanceof Types.ObjectId ? user._id.toString() : user._id;
+  //   const creatorId =
+  //     user.creatorId instanceof Types.ObjectId
+  //       ? user.creatorId.toString()
+  //       : user.creatorId;
+
+  //   if (userId !== currentUserId && creatorId !== currentUserId) {
+  //     throw new ForbiddenException(
+  //       "You are not authorized to access this user's details",
+  //     );
+  //   }
+
+  //   return user;
+  // }
+
+  async findFieldCoordById(
+    id: string,
+    currentUserId: string,
+    role: string,
+  ): Promise<User> {
+    if (!isValidObjectId(id)) {
+      throw new ForbiddenException('Invalid user ID format');
+    }
+
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    // Ensure that user._id and creatorId are properly cast to strings for comparison
+    const userId =
+      user._id instanceof Types.ObjectId ? user._id.toString() : user._id;
+    const creatorId =
+      user.creatorId instanceof Types.ObjectId
+        ? user.creatorId.toString()
+        : user.creatorId;
+
+    // Field Coordinator role validation
+    if (role === 'fieldCoordinator') {
+      // Field Coordinators can only view their own details or enumerators they created
+      if (userId !== currentUserId && creatorId !== currentUserId) {
+        throw new ForbiddenException(
+          "You are not authorized to access this user's details",
+        );
+      }
+
+      // Additional check to ensure a field coordinator cannot view admin details
+      if (user.role === 'admin') {
+        throw new ForbiddenException(
+          'Field coordinators cannot access admin details',
+        );
+      }
+    }
+
+    return user;
+  }
+
+  // async findFieldCoordById(
+  //   id: string,
+  //   currentUserId: string,
+  //   role: string,
+  // ): Promise<User> {
+  //   if (!isValidObjectId(id)) {
+  //     throw new ForbiddenException('Invalid user ID format');
+  //   }
+
+  //   const user = await this.userModel.findById(id).exec();
+
+  //   if (!user) {
+  //     throw new ForbiddenException('User not found');
+  //   }
+
+  //   // Ensure that user._id and creatorId are properly cast to strings for comparison
+  //   const userId =
+  //     user._id instanceof Types.ObjectId ? user._id.toString() : user._id;
+  //   const creatorId =
+  //     user.creatorId instanceof Types.ObjectId
+  //       ? user.creatorId.toString()
+  //       : user.creatorId;
+
+  //   // If the user is a field coordinator, they can only access their own details or enumerators they created
+  //   if (role === 'fieldCoordinator') {
+  //     if (userId !== currentUserId && creatorId !== currentUserId) {
+  //       throw new ForbiddenException(
+  //         "You are not authorized to access this user's details",
+  //       );
+  //     }
+  //   }
+
+  //   // If the user is an admin, field coordinators should not be able to access their details
+  //   if (role === 'fieldCoordinator' && user.role === 'admin') {
+  //     throw new ForbiddenException(
+  //       'Field coordinators cannot access admin details',
+  //     );
+  //   }
+
+  //   return user;
+  // }
+
   async deleteUser(id: string): Promise<void> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -269,5 +429,54 @@ export class AuthService {
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await user.save();
     return { message: 'Password updated successfully' };
+  }
+
+  //opeyemi
+
+  async countUsersByRole(): Promise<Record<string, number>> {
+    const roles = ['fieldCoordinator', 'enumerator']; // Adjust roles as needed
+    const counts: Record<string, number> = {};
+
+    for (const role of roles) {
+      counts[role] = await this.userModel.countDocuments({ role }).exec();
+    }
+
+    return counts;
+  }
+
+  // async findEnumeratorsByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<User[]> {
+  //   if (!isValidObjectId(fieldCoordinatorId)) {
+  //     throw new BadRequestException('Invalid field coordinator ID format');
+  //   }
+
+  //   const enumerators = await this.userModel
+  //     .find({
+  //       role: 'enumerator',
+  //       fieldCoordinator: fieldCoordinatorId,
+  //     })
+  //     .exec();
+
+  //   if (!enumerators || enumerators.length === 0) {
+  //     throw new NotFoundException(
+  //       'No enumerators found for this field coordinator',
+  //     );
+  //   }
+
+  //   return enumerators;
+  // }
+
+  // Add the new method to find enumerators by fieldCoordinatorId
+  async findEnumeratorsByFieldCoordinator(
+    fieldCoordinatorId: string,
+  ): Promise<User[]> {
+    const users = await this.userModel.find({ fieldCoordinatorId }).exec();
+    if (!users.length) {
+      throw new NotFoundException(
+        'No enumerators found for this field coordinator',
+      );
+    }
+    return users;
   }
 }

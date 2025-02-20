@@ -23,7 +23,8 @@ import { Roles } from 'src/utils/roles/roles.decorator';
 
 @ApiTags('Admin - Data Entry Questions')
 @ApiBearerAuth()
-@Controller('admin/questions')
+@Controller('api/v1')
+// @Controller('admin/questions')
 @UseGuards(RolesGuard)
 export class AdminController {
   constructor(private readonly questionsService: DataEntryQuestionsService) {}
