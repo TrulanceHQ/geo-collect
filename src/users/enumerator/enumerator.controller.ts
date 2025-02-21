@@ -38,7 +38,7 @@ export class EnumeratorController {
   @ApiOperation({ summary: 'Submit survey responses' })
   async submitSurveyResponse(@Body() body: any, @Req() req) {
     const enumeratorId = req.user.sub as string; 
-    const { surveyId, responses } = body;
-    return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId);
+    const { surveyId, responses, location } = body;
+    return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId, location);
   }
 }

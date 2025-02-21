@@ -19,13 +19,17 @@ export class EnumeratorFlowService {
     surveyId: string,
     responses: SubmitSurveyResponseDto['responses'],
     enumeratorId: string,
+    location: SubmitSurveyResponseDto['location'],
   ): Promise<SurveyResponse> {
     // const { surveyId, responses } = dto;
+
+    // console.log('location:', location);
 
     const newResponse = new this.surveyResponseModel({
       surveyId,
       enumeratorId,
       responses,
+      location,
     });
 
     return newResponse.save();
