@@ -30,6 +30,11 @@ export class SubmitSurveyResponseDto {
   @IsNotEmpty()
   enumeratorId: string;
 
+  @ApiProperty({ example: 'Lagos', description: 'Location' })
+  @IsString()
+  @IsNotEmpty()
+  location: string;
+
   @ApiProperty({ type: [SurveyResponseDto], description: 'Responses' })
   @IsArray()
   @IsNotEmpty()

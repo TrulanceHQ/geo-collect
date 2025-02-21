@@ -15,6 +15,9 @@ export class SurveyResponse {
     response: string;
   }>;
 
+  @Prop({ required: true })
+  location: string;
+
   @Prop({ default: Date.now })
   submittedAt: Date;
 }

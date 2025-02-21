@@ -16,14 +16,15 @@ import { JwtAuthGuard } from 'src/utils/JwtAuthGuard';
 
 @ApiTags('Enumerator Flow')
 @ApiBearerAuth()
-@Controller('api/v1/enumerator')
+@Controller('api/v1')
+// @Controller('api/v1/enumerator')
 export class EnumeratorController {
   constructor(
     private readonly dataEntryQuestionsService: DataEntryQuestionsService,
     private readonly EnumeratorFlowService: EnumeratorFlowService,
   ) {}
 
-  @Get('survey/all')
+  @Get('enumerator/survey/all')
   @ApiOperation({ summary: 'Get all question' })
   @ApiResponse({
     status: 200,
@@ -34,11 +35,11 @@ export class EnumeratorController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('survey/submit')
+  @Post('enumerator/survey/submit')
   @ApiOperation({ summary: 'Submit survey responses' })
   async submitSurveyResponse(@Body() body: any, @Req() req) {
     const enumeratorId = req.user.sub as string; 
-    const { surveyId, responses } = body;
-    return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId);
+    const { surveyId, responses, location } = body;
+    return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId, location);
   }
 }

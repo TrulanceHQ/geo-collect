@@ -22,7 +22,6 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = request.headers.authorization?.split(' ')[1];
 
-    console.log('Token:', token);
     if (!token) {
       console.log('No token found');
       throw new UnauthorizedException('No token found');
@@ -32,7 +31,6 @@ export class JwtAuthGuard implements CanActivate {
       const decoded = this.jwtService.verify(token);
       // request.user = decoded;
       request.user = { ...decoded, sub: decoded.sub };
-      console.log('Decoded token:', decoded);
       return true;
     } catch (err) {
       console.log('Token verification failed', err);
