@@ -129,7 +129,7 @@ export class AuthService {
         emailAddress: user.emailAddress,
         sub: user._id,
         roles: user.role,
-        // fieldCoordinatorId: user._id, // Add this field to the JWT payload
+        fieldCoordinatorId: user._id, // Add this field to the JWT payload
       };
       // Log the payload before signing it
       console.log('JWT Payload:', payload);
@@ -207,7 +207,7 @@ export class AuthService {
     return this.userModel.find(query).skip(skip).limit(limit).exec();
   }
 
-  //all users
+  //admin
   async findUserById(id: string): Promise<User> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -215,6 +215,41 @@ export class AuthService {
     const user = await this.userModel.findById(id).exec();
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  //enum
+  async findEnumById(id: string, currentUserId: string): Promise<User> {
+    if (!isValidObjectId(id)) {
+      throw new ForbiddenException('Invalid user ID format');
+    }
+
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    // // Enumerator can only view their own details
+    // if (user._id.toString() !== currentUserId) {
+    //   throw new ForbiddenException(
+    //     "You are not authorized to access this user's details",
+    //   );
+    // }
+
+    // Type-cast user._id and creatorId to ObjectId before comparing them
+    const userId =
+      user._id instanceof Types.ObjectId ? user._id.toString() : user._id;
+    const creatorId =
+      user.creatorId instanceof Types.ObjectId
+        ? user.creatorId.toString()
+        : user.creatorId;
+
+    if (userId !== currentUserId && creatorId !== currentUserId) {
+      throw new ForbiddenException(
+        "You are not authorized to access this user's details",
+      );
     }
     return user;
   }
@@ -295,6 +330,29 @@ export class AuthService {
     return counts;
   }
 
+  // async findEnumeratorsByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<User[]> {
+  //   if (!isValidObjectId(fieldCoordinatorId)) {
+  //     throw new BadRequestException('Invalid field coordinator ID format');
+  //   }
+
+  //   const enumerators = await this.userModel
+  //     .find({
+  //       role: 'enumerator',
+  //       fieldCoordinator: fieldCoordinatorId,
+  //     })
+  //     .exec();
+
+  //   if (!enumerators || enumerators.length === 0) {
+  //     throw new NotFoundException(
+  //       'No enumerators found for this field coordinator',
+  //     );
+  //   }
+
+  //   return enumerators;
+  // }
+
   // Add the new method to find enumerators by fieldCoordinatorId
   async findEnumeratorsByFieldCoordinator(
     fieldCoordinatorId: string,
@@ -302,7 +360,7 @@ export class AuthService {
     const users = await this.userModel.find({ fieldCoordinatorId }).exec();
     if (!users.length) {
       throw new NotFoundException(
-        'No enumerators founnd for this field coordinator',
+        'No enumerators found for this field coordinator',
       );
     }
     return users;
