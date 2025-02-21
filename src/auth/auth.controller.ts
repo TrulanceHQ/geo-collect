@@ -61,7 +61,7 @@ export class UsersController {
   }
 
   @Roles('fieldCoordinator')
-  @Post('/create-enumerator')
+  @Post('create-enumerator')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({ status: 409, description: 'Conflict: Email already exists' })
@@ -112,7 +112,7 @@ export class UsersController {
 
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)
-  @Post('/login')
+  @Post('login')
   @ApiOperation({ summary: 'Log in a user' })
   @ApiBody({ type: LoginUserDto })
   @ApiResponse({ status: 200, description: 'Login successful' })
