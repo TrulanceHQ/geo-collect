@@ -131,7 +131,7 @@ export class UsersController {
     return loginResponse;
   }
 
-  @Roles('admin', 'enumerator')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Patch('/update-user/:id')
   @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Update user details' })
@@ -218,98 +218,13 @@ export class UsersController {
 
   //find user by ID
 
-  // @Roles('admin', 'enumerator', 'fieldCoordinator')
-  // @Get('/user/:id')
-  // @ApiOperation({ summary: 'Find user by ID' })
-  // @ApiResponse({ status: 200, description: 'User found', type: User })
-  // @ApiResponse({ status: 400, description: 'Invalid user ID format' })
-  // @ApiResponse({ status: 404, description: 'User not found' })
-  // async findUserById(@Param('id') id: string): Promise<User> {
-  //   if (!isValidObjectId(id)) {
-  //     throw new BadRequestException('Invalid user ID format');
-  //   }
-  //   const user = await this.authService.findUserById(id);
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-  //   return user;
-  // }
-
   //get all users by id
-  @Roles('admin')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   // @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Get('/allusers/:id')
-  @ApiOperation({ summary: 'Admin can view any user' })
+  @ApiOperation({ summary: 'Find user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })
   async getAdminUser(@Param('id') id: string) {
     return this.authService.findUserById(id);
   }
-
-  @Roles('fieldCoordinator')
-  // @Roles('admin', 'enumerator', 'fieldCoordinator')
-  @Get('field-coordinator/:id')
-  @ApiOperation({
-    summary: 'Field Coordinator can view own and enumerators they created',
-  })
-  @ApiResponse({ status: 200, description: 'User found' })
-  async getFieldCoordinatorUser(@Param('id') id: string, @Request() req) {
-    console.log('Current user:', req.user); // Add this line to check the user details
-    return this.authService.findFieldCoordById(id, req.user._id, req.user.role);
-  }
-
-  @Roles('enumerator')
-  // @Roles('admin', 'enumerator', 'fieldCoordinator')
-  @Get('enumerator/:id')
-  @ApiOperation({ summary: 'Enumerator can view their own details' })
-  @ApiResponse({ status: 200, description: 'User found' })
-  async getEnumeratorUser(@Param('id') id: string, @Request() req) {
-    return this.authService.findEnumById(id, req.user._id);
-  }
-  // @ApiOperation({ summary: 'Find user by ID' })
-  // @ApiResponse({ status: 200, description: 'User found', type: User })
-  // @ApiResponse({ status: 400, description: 'Invalid user ID format' })
-  // @ApiResponse({ status: 404, description: 'User not found' })
-  // async findUserById(@Param('id') id: string, @Request() req): Promise<User> {
-  //   const currentUser = req.user; // This assumes the user's data is attached to the request object (via JWT or session)
-  //   const user = await this.authService.findUserById(id); // Find user by ID
-
-  //   // Admin can access any user's details
-  //   if (currentUser.role === UserRole.ADMIN) {
-  //     return this.authService.findUserById(id);
-  //   }
-
-  //   // Enumerator can only access their own details
-  //   if (
-  //     currentUser.role === UserRole.ENUMERATOR &&
-  //     currentUser._id.toString() !== id
-  //   ) {
-  //     throw new ForbiddenException(
-  //       "You are not authorized to access this user's details",
-  //     );
-  //   }
-
-  //   // Field Coordinator can access their own details or enumerators they created
-  //   if (currentUser.role === UserRole.FIELDCOORDINATOR) {
-  //     if (currentUser._id.toString() === id) {
-  //       return this.authService.findUserById(id); // Own details
-  //     }
-
-  //     // If the user is an enumerator, check if the field coordinator created them
-  //     const enumerator = await this.authService.findUserById(id);
-  //     if (!enumerator) {
-  //       throw new NotFoundException('User not found');
-  //     }
-  //     if (enumerator.creatorId.toString() !== currentUser._id.toString()) {
-  //       throw new ForbiddenException(
-  //         "You are not authorized to access this enumerator's details",
-  //       );
-  //     }
-
-  //     return enumerator;
-  //   }
-
-  //   throw new ForbiddenException(
-  //     'You are not authorized to access user details',
-  //   );
-  // }
 }

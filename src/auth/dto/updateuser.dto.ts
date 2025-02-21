@@ -53,7 +53,8 @@ export class UpdateUserDto {
 
   @ApiProperty({ enum: UserRole, description: 'Role of the user' })
   @IsEnum(UserRole)
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsOptional()
   role?: UserRole;
 
   @ApiProperty({
@@ -61,7 +62,8 @@ export class UpdateUserDto {
     enum: Gender,
     example: Gender.MALE,
   })
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsOptional()
   @IsEnum(Gender)
   gender?: Gender;
 }
