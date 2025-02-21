@@ -47,7 +47,7 @@ import { isValidObjectId } from 'mongoose';
 export class UsersController {
   constructor(private readonly authService: AuthService) {}
 
-  @Roles('admin')
+  // @Roles('admin')
   @Post('/create-user')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
