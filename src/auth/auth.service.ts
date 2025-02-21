@@ -302,7 +302,7 @@ export class AuthService {
     const users = await this.userModel.find({ fieldCoordinatorId }).exec();
     if (!users.length) {
       throw new NotFoundException(
-        'No enumerators found for this field coordinator',
+        'No enumerators founnd for this field coordinator',
       );
     }
     return users;
