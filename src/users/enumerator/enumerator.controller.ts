@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import {
@@ -34,24 +33,38 @@ export class EnumeratorController {
   })
   async getAllQuestionSets(): Promise<DataEntryQuestion[]> {
     return this.dataEntryQuestionsService.getAllQuestionSets();
-  }  @UseGuards(JwtAuthGuard)
+  }
+
+  
+  @UseGuards(JwtAuthGuard)
   @Post('survey/submit')
   @ApiOperation({ summary: 'Submit survey responses' })
   async submitSurveyResponse(@Body() body: any, @Req() req) {
-    const enumeratorId = req.user.sub as string; 
+    const enumeratorId = req.user.sub as string;
     const { surveyId, responses, location, mediaUrl } = body;
-    return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId, location, mediaUrl );
+    return this.EnumeratorFlowService.submitSurveyResponse(
+      surveyId,
+      responses,
+      enumeratorId,
+      location,
+      mediaUrl,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('survey/responses')
-  @ApiOperation({ summary: 'Get all survey responses for the authenticated enumerator' })
+  @ApiOperation({
+    summary: 'Get all survey responses for the authenticated enumerator',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Returns a list of all survey responses for the authenticated enumerator.',
+    description:
+      'Returns a list of all survey responses for the authenticated enumerator.',
   })
   async getSurveyResponses(@Req() req): Promise<SurveyResponse[]> {
     const enumeratorId = req.user.sub as string;
-    return this.EnumeratorFlowService.getSurveyResponsesByEnumerator(enumeratorId);
+    return this.EnumeratorFlowService.getSurveyResponsesByEnumerator(
+      enumeratorId,
+    );
   }
 }
