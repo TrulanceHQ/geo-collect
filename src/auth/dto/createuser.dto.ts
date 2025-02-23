@@ -20,4 +20,12 @@ export class CreateUserDto {
   @IsEnum(UserRole)
   @IsNotEmpty()
   readonly creatorRole: UserRole;
+
+  @ApiProperty({ description: 'Selected state of the user' })
+  @IsNotEmpty()
+  readonly selectedState: string; // Add this field
+
+  // @ApiProperty({ description: 'fieldCoordinator id' })
+  // @IsNotEmpty()
+  // readonly fieldCoordinatorId?: string; // Add this field if it's part of the creation process
 }

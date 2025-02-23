@@ -9,7 +9,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './schema/user.schema';
 import { ChangePasswordDto } from './dto/changepassword.dto';
@@ -58,6 +58,8 @@ export class AuthService {
       `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
     );
     console.log(`Role: ${createUserDto.role}`);
+    // Ensure the property name matches your DTO
+    console.log(`State: ${createUserDto.selectedState}`); // Log the selected state
 
     // await this.emailUtil.sendEmail(
     //   createUserDto.emailAddress,
@@ -74,6 +76,7 @@ export class AuthService {
 
   async createEnumeratorByFieldCoordinator(
     createUserDto: CreateUserDto,
+    // fieldCoordinatorId: string, // Accept fieldCoordinatorId here
   ): Promise<User> {
     const existingUser = await this.userModel
       .findOne({ emailAddress: createUserDto.emailAddress })
@@ -98,6 +101,7 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
       isVerified: false,
+      // fieldCoordinatorId, // Associate the fieldCoordinatorId to the new user
     });
 
     // Log the temporary password and role to the console
@@ -125,7 +129,11 @@ export class AuthService {
         emailAddress: user.emailAddress,
         sub: user._id,
         roles: user.role,
+        // fieldCoordinatorId: user._id, // Add this field to the JWT payload
       };
+      // Log the payload before signing it
+      console.log('JWT Payload:', payload);
+
       const accessToken = this.jwtService.sign(payload);
       return { accessToken, user };
     }
@@ -198,6 +206,8 @@ export class AuthService {
     const query: Record<string, any> = { role, ...filter };
     return this.userModel.find(query).skip(skip).limit(limit).exec();
   }
+
+  //all users
   async findUserById(id: string): Promise<User> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -208,6 +218,7 @@ export class AuthService {
     }
     return user;
   }
+
   async deleteUser(id: string): Promise<void> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid user ID format');
@@ -269,5 +280,31 @@ export class AuthService {
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await user.save();
     return { message: 'Password updated successfully' };
+  }
+
+  //opeyemi
+
+  async countUsersByRole(): Promise<Record<string, number>> {
+    const roles = ['fieldCoordinator', 'enumerator']; // Adjust roles as needed
+    const counts: Record<string, number> = {};
+
+    for (const role of roles) {
+      counts[role] = await this.userModel.countDocuments({ role }).exec();
+    }
+
+    return counts;
+  }
+
+  // Add the new method to find enumerators by fieldCoordinatorId
+  async findEnumeratorsByFieldCoordinator(
+    fieldCoordinatorId: string,
+  ): Promise<User[]> {
+    const users = await this.userModel.find({ fieldCoordinatorId }).exec();
+    if (!users.length) {
+      throw new NotFoundException(
+        'No enumerators found for this field coordinator',
+      );
+    }
+    return users;
   }
 }

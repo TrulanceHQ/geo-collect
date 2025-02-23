@@ -77,11 +77,29 @@ export class NgStatesService {
     return existingState;
   }
 
+  // async viewStates() {
+  //   const states = await this.statesModel.find().exec();
+  //   console.log('Fetched states:', states); // Log fetched states
+  //   if (!states || states.length === 0) {
+  //     throw new NotFoundException('No states found.');
+  //   }
+  //   return states;
+
+  //   // return { total: states.length, states };
+  // }
   async viewStates() {
-    const states = await this.statesModel.find().exec();
-    if (!states || states.length === 0) {
+    const statesDocuments = await this.statesModel.find().exec();
+
+    if (!statesDocuments || statesDocuments.length === 0) {
       throw new NotFoundException('No states found.');
     }
-    return states;
+
+    // Calculate total number of states across all documents
+    const totalStates = statesDocuments.reduce(
+      (sum, doc) => sum + doc.ngstates.length,
+      0,
+    );
+
+    return { total: totalStates, states: statesDocuments };
   }
 }

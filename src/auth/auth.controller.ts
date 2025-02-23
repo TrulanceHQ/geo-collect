@@ -11,6 +11,9 @@ import {
   UseInterceptors,
   // Req,
   ForbiddenException,
+  Request,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -33,7 +36,8 @@ import { UpdateUserDto } from './dto/updateuser.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 import { ChangePasswordDto } from './dto/changepassword.dto';
-import { UserRole } from './schema/user.schema';
+import { User, UserRole } from './schema/user.schema';
+import { isValidObjectId } from 'mongoose';
 // import { ResendVerificationCodeDto } from './dto/resendverificationcode.dto';
 
 @ApiTags('Auth')
@@ -127,7 +131,7 @@ export class UsersController {
     return loginResponse;
   }
 
-  @Roles('admin', 'enumerator')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Patch('/update-user/:id')
   @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Update user details' })
@@ -195,5 +199,32 @@ export class UsersController {
   })
   async findAll() {
     return this.authService.findAll();
+  }
+
+  //opeyemi
+  @Roles('admin')
+  @Get('/user-count')
+  @ApiOperation({ summary: 'Get user count per role (Admin only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the count of users per role',
+    schema: {
+      example: { admin: 5, user: 20, editor: 7 },
+    },
+  })
+  async countUsersByRole() {
+    return this.authService.countUsersByRole();
+  }
+
+  //find user by ID
+
+  //get all users by id
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
+  // @Roles('admin', 'enumerator', 'fieldCoordinator')
+  @Get('/allusers/:id')
+  @ApiOperation({ summary: 'Find user by ID' })
+  @ApiResponse({ status: 200, description: 'User found' })
+  async getAdminUser(@Param('id') id: string) {
+    return this.authService.findUserById(id);
   }
 }

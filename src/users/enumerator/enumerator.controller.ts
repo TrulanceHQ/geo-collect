@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import {
@@ -17,14 +18,15 @@ import { SurveyResponse } from './survey-response.schema';
 
 @ApiTags('Enumerator Flow')
 @ApiBearerAuth()
-@Controller('api/v1/enumerator')
+@Controller('api/v1')
+// @Controller('api/v1/enumerator')
 export class EnumeratorController {
   constructor(
     private readonly dataEntryQuestionsService: DataEntryQuestionsService,
     private readonly EnumeratorFlowService: EnumeratorFlowService,
   ) {}
 
-  @Get('survey/all')
+  @Get('enumerator/survey/all')
   @ApiOperation({ summary: 'Get all question' })
   @ApiResponse({
     status: 200,
