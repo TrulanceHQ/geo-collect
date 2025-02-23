@@ -18,6 +18,9 @@ export class SurveyResponse {
   @Prop({ required: true })
   location: string;
 
+  @Prop({ required: true })
+  mediaUrl: string;
+
   @Prop({ default: Date.now })
   submittedAt: Date;
 }

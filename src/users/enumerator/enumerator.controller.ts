@@ -13,6 +13,7 @@ import { DataEntryQuestionsService } from './../admin/all-data/data-questions/da
 import { DataEntryQuestion } from './../admin/all-data/data-questions/data-questions.schema';
 import { EnumeratorFlowService } from './enumerator.service';
 import { JwtAuthGuard } from 'src/utils/JwtAuthGuard';
+import { SurveyResponse } from './survey-response.schema';
 
 @ApiTags('Enumerator Flow')
 @ApiBearerAuth()
@@ -31,14 +32,24 @@ export class EnumeratorController {
   })
   async getAllQuestionSets(): Promise<DataEntryQuestion[]> {
     return this.dataEntryQuestionsService.getAllQuestionSets();
-  }
-
-  @UseGuards(JwtAuthGuard)
+  }  @UseGuards(JwtAuthGuard)
   @Post('survey/submit')
   @ApiOperation({ summary: 'Submit survey responses' })
   async submitSurveyResponse(@Body() body: any, @Req() req) {
     const enumeratorId = req.user.sub as string; 
-    const { surveyId, responses, location } = body;
-    return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId, location);
+    const { surveyId, responses, location, mediaUrl } = body;
+    return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId, location, mediaUrl );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('survey/responses')
+  @ApiOperation({ summary: 'Get all survey responses for the authenticated enumerator' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a list of all survey responses for the authenticated enumerator.',
+  })
+  async getSurveyResponses(@Req() req): Promise<SurveyResponse[]> {
+    const enumeratorId = req.user.sub as string;
+    return this.EnumeratorFlowService.getSurveyResponsesByEnumerator(enumeratorId);
   }
 }
