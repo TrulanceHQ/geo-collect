@@ -17,15 +17,14 @@ import { SurveyResponse } from './survey-response.schema';
 
 @ApiTags('Enumerator Flow')
 @ApiBearerAuth()
-@Controller('api/v1')
-// @Controller('api/v1/enumerator')
+@Controller('api/v1/enumerator')
 export class EnumeratorController {
   constructor(
     private readonly dataEntryQuestionsService: DataEntryQuestionsService,
     private readonly EnumeratorFlowService: EnumeratorFlowService,
   ) {}
 
-  @Get('enumerator/survey/all')
+  @Get('/survey/all')
   @ApiOperation({ summary: 'Get all question' })
   @ApiResponse({
     status: 200,
