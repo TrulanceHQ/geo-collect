@@ -75,6 +75,14 @@ export class UsersController {
     return this.authService.createEnumeratorByFieldCoordinator(userDto);
   }
 
+  //  @UseGuards(JwtAuthGuard)
+  //   @Post('enumerator/survey/submit')
+  //   @ApiOperation({ summary: 'Submit survey responses' })
+  //   async submitSurveyResponse(@Body() body: any, @Req() req) {
+  //     const enumeratorId = req.user.sub as string;
+  //     const { surveyId, responses, location } = body;
+  //     return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId, location);
+  //   }
   // @Post('/verify-email')
   // @ApiOperation({ summary: 'Verify New User Email' })
   // @ApiBody({ type: VerifyEmailDto })
