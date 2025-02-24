@@ -63,19 +63,19 @@ export class AdminController {
     return this.questionsService.getQuestionSetById(id);
   }
 
-  @Roles('admin')
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a question set' })
-  @ApiResponse({
-    status: 200,
-    description: 'The question set has been successfully updated.',
-  })
-  updateQuestionSet(
-    @Param('id') id: string,
-    @Body() dto: CreateDataEntryQuestionDto,
-  ) {
-    return this.questionsService.updateQuestionSet(id, dto);
-  }
+  // @Roles('admin')
+  // @Patch(':id')
+  // @ApiOperation({ summary: 'Update a question set' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'The question set has been successfully updated.',
+  // })
+  // updateQuestionSet(
+  //   @Param('id') id: string,
+  //   @Body() dto: CreateDataEntryQuestionDto,
+  // ) {
+  //   return this.questionsService.updateQuestionSet(id, dto);
+  // }
 
   @Roles('admin')
   @Delete(':id')
