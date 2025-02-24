@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -20,16 +19,14 @@ export class EnumeratorFlowService {
     responses: SubmitSurveyResponseDto['responses'],
     enumeratorId: string,
     location: SubmitSurveyResponseDto['location'],
+    mediaUrl: SubmitSurveyResponseDto['mediaUrl'],
   ): Promise<SurveyResponse> {
-    // const { surveyId, responses } = dto;
-
-    // console.log('location:', location);
-
     const newResponse = new this.surveyResponseModel({
       surveyId,
       enumeratorId,
       responses,
       location,
+      mediaUrl,
     });
 
     return newResponse.save();
@@ -39,6 +36,15 @@ export class EnumeratorFlowService {
     return this.surveyResponseModel
       .find({ surveyId })
       .populate('enumeratorId', 'name email')
+      .exec();
+  }
+
+  async getSurveyResponsesByEnumerator(
+    enumeratorId: string,
+  ): Promise<SurveyResponse[]> {
+    return this.surveyResponseModel
+      .find({ enumeratorId })
+      .populate('surveyId', 'title')
       .exec();
   }
 }
