@@ -79,14 +79,14 @@ export class DataEntryQuestionsService {
             }
           }
 
-          if (q.type === QuestionType.TEXT) {
-            if (q.options || q.likertQuestions) {
-              throw new HttpException(
-                'Text questions should not have options or likertQuestions',
-                HttpStatus.BAD_REQUEST,
-              );
-            }
-          }
+          // if (q.type === QuestionType.TEXT) {
+          //   if (q.options || q.likertQuestions) {
+          //     throw new HttpException(
+          //       'Text questions should not have options of likertQuestions',
+          //       HttpStatus.BAD_REQUEST,
+          //     );
+          //   }
+          // }
 
           return q;
         });
