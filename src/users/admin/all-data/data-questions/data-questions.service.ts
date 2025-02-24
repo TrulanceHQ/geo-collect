@@ -5,6 +5,31 @@ import { DataEntryQuestion, DataEntryDocument } from './data-questions.schema';
 import { CreateDataEntryQuestionDto } from './data-questions.dto';
 // import { v4 as uuidv4 } from 'uuid';
 
+// @Injectable()
+// export class DataEntryQuestionsService {
+//   constructor(
+//     @InjectModel(DataEntryQuestion.name)
+//     private dataEntryModel: Model<DataEntryDocument>,
+//   ) {}
+
+//   async createQuestionSet(
+//     dataEntryDto: CreateDataEntryQuestionDto,
+//   ): Promise<DataEntryQuestion> {
+//     // Filter out empty options and empty likertQuestions
+//     dataEntryDto.questions = dataEntryDto.questions.map((q) => {
+//       if (Array.isArray(q.options) && q.options.length === 0) {
+//         delete q.options;
+//       }
+//       if (Array.isArray(q.likertQuestions) && q.likertQuestions.length === 0) {
+//         delete q.likertQuestions;
+//       }
+//       return q;
+//     });
+
+//     return this.dataEntryModel.create(dataEntryDto);
+//   }
+
+//new
 @Injectable()
 export class DataEntryQuestionsService {
   constructor(
@@ -15,17 +40,6 @@ export class DataEntryQuestionsService {
   async createQuestionSet(
     dataEntryDto: CreateDataEntryQuestionDto,
   ): Promise<DataEntryQuestion> {
-    // Filter out empty options and empty likertQuestions
-    dataEntryDto.questions = dataEntryDto.questions.map((q) => {
-      if (Array.isArray(q.options) && q.options.length === 0) {
-        delete q.options;
-      }
-      if (Array.isArray(q.likertQuestions) && q.likertQuestions.length === 0) {
-        delete q.likertQuestions;
-      }
-      return q;
-    });
-
     return this.dataEntryModel.create(dataEntryDto);
   }
 

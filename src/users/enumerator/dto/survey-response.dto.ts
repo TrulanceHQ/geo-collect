@@ -35,6 +35,14 @@ export class SubmitSurveyResponseDto {
   @IsNotEmpty()
   location: string;
 
+  @ApiProperty({
+    example: 'image',
+    description: 'https://mypixsaaaaaaaaaaaaaaaa',
+  })
+  @IsString()
+  @IsNotEmpty()
+  mediaUrl: string;
+
   @ApiProperty({ type: [SurveyResponseDto], description: 'Responses' })
   @IsArray()
   @IsNotEmpty()

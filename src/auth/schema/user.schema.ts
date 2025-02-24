@@ -32,6 +32,9 @@ export class User extends Document {
   @Prop({ required: false, enum: UserRole })
   creatorRole: UserRole; // <-- Add this field
 
+  // @Prop({ required: false }) // Tracks which field coordinator created enumerator
+  // fieldCoordinatorId: Types.ObjectId;
+
   @Prop({ required: false })
   selectedState: string; // Store the selected state name or ID
 

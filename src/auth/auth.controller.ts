@@ -11,9 +11,6 @@ import {
   UseInterceptors,
   // Req,
   ForbiddenException,
-  Request,
-  BadRequestException,
-  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -36,8 +33,7 @@ import { UpdateUserDto } from './dto/updateuser.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 import { ChangePasswordDto } from './dto/changepassword.dto';
-import { User, UserRole } from './schema/user.schema';
-import { isValidObjectId } from 'mongoose';
+import { UserRole } from './schema/user.schema';
 // import { ResendVerificationCodeDto } from './dto/resendverificationcode.dto';
 
 @ApiTags('Auth')
@@ -75,6 +71,14 @@ export class UsersController {
     return this.authService.createEnumeratorByFieldCoordinator(userDto);
   }
 
+  //  @UseGuards(JwtAuthGuard)
+  //   @Post('enumerator/survey/submit')
+  //   @ApiOperation({ summary: 'Submit survey responses' })
+  //   async submitSurveyResponse(@Body() body: any, @Req() req) {
+  //     const enumeratorId = req.user.sub as string;
+  //     const { surveyId, responses, location } = body;
+  //     return this.EnumeratorFlowService.submitSurveyResponse( surveyId, responses, enumeratorId, location);
+  //   }
   // @Post('/verify-email')
   // @ApiOperation({ summary: 'Verify New User Email' })
   // @ApiBody({ type: VerifyEmailDto })
