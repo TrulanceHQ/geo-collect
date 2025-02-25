@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsEnum,
-  IsString,
-  IsOptional,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsEnum, IsString } from 'class-validator';
 import { UserRole } from './../schema/user.schema';
 
 export class CreateUserDto {
@@ -27,17 +21,16 @@ export class CreateUserDto {
   @IsNotEmpty()
   readonly creatorRole: UserRole;
 
+  // @ApiProperty({ example: 'user123', description: 'Enumerator ID' })
+  // @IsString()
+  // @IsNotEmpty()
+  // fieldCoordinatorId: string;
+
   @ApiProperty({ description: 'Selected state of the user' })
   @IsNotEmpty()
   readonly selectedState: string; // Add this field
 
-  @ApiProperty({ description: 'Admin ID of the creator' })
-  @IsString()
-  @IsOptional()
-  readonly adminId: string; // Add this field
-
-  @ApiProperty({ description: 'Field Coordinator ID of the creator' })
-  @IsString()
-  @IsOptional()
-  readonly fieldCoordinatorId: string; // Add this field
+  // @ApiProperty({ description: 'fieldCoordinator id' })
+  // @IsNotEmpty()
+  // readonly fieldCoordinatorId?: string; // Add this field if it's part of the creation process
 }
