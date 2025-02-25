@@ -86,6 +86,12 @@ export class User extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
   creatorId: Types.ObjectId; // This should be the field you're using to track who created the user
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  adminId: Types.ObjectId; // Add this field
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  fieldCoordinatorId: Types.ObjectId; // Add this field
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
