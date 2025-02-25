@@ -9,13 +9,13 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './schema/user.schema';
 import { ChangePasswordDto } from './dto/changepassword.dto';
 import * as bcrypt from 'bcryptjs';
 import { isValidObjectId } from 'mongoose';
-import { EmailUtil } from '../utils/email/email.util';
+import { EmailUtil } from '../utils/email/email-util.service';
 import { CreateUserDto } from './dto/createuser.dto';
 import { CloudinaryService } from 'src/utils/cloudinary/cloudinary.service';
 import { UpdateUserDto } from './dto/updateuser.dto';
@@ -61,15 +61,15 @@ export class AuthService {
     // Ensure the property name matches your DTO
     console.log(`State: ${createUserDto.selectedState}`); // Log the selected state
 
-    // await this.emailUtil.sendEmail(
-    //   createUserDto.emailAddress,
-    //   'Account Created - Temporary Password',
-    //   'temporary-password',
-    //   {
-    //     password: temporaryPassword,
-    //     role: createUserDto.role
-    //   },
-    // );
+    await this.emailUtil.sendEmail(
+      createUserDto.emailAddress,
+      'Account Created - Temporary Password',
+      'temporary-password',
+      {
+        password: temporaryPassword,
+        role: createUserDto.role,
+      },
+    );
 
     return createdUser.save();
   }
@@ -155,14 +155,14 @@ export class AuthService {
     user.resetTokenExpires = resetTokenExpires;
     await user.save();
 
-    const resetLink = `${process.env.FRONTEND_URL}?token=${resetToken}`;
+    // const resetLink = `${process.env.FRONTEND_URL}?token=${resetToken}`;
 
-    await this.emailUtil.sendResetPasswordEmail(
-      emailAddress,
-      'Password Reset Request',
-      'reset-password',
-      { resetLink },
-    );
+    // await this.emailUtil.sendResetPasswordEmail(
+    //   emailAddress,
+    //   'Password Reset Request',
+    //   'reset-password',
+    //   { resetLink },
+    // );
 
     return;
   }

@@ -16,7 +16,7 @@ import { DataEntryQuestionModule } from './users/admin/all-data/data-questions/d
 import * as dotenv from 'dotenv';
 dotenv.config();
 console.log(process.env.DEVELOPMENT_MONGODB_CONNECTION_URL);
-import { EmailUtil } from './utils/email/email.util';
+import { EmailUtil } from './utils/email/email-util.service';
 import { EnumeratorModule } from './users/enumerator/enumerator.module';
 
 @Module({
@@ -50,10 +50,13 @@ import { EnumeratorModule } from './users/enumerator/enumerator.module';
         transport: {
           host: configService.get<string>('MAIL_HOST'),
           port: configService.get<number>('MAIL_PORT'),
-          secure: true, // true for 465, false for other ports
+          secure: false, // true for 465, false for other ports
           auth: {
             user: configService.get<string>('MAIL_USER'),
             pass: configService.get<string>('MAIL_PASS'),
+          },
+          tls: {
+            rejectUnauthorized: false, // Allow insecure connections
           },
         },
         defaults: {
