@@ -137,7 +137,7 @@ export class AuthService {
       const accessToken = this.jwtService.sign(payload);
       return { accessToken, user };
     }
-    throw new UnauthorizedException('Username or Password Incorrect');
+    throw new UnauthorizedException('Username or Passworrd Incorrect');
   }
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
