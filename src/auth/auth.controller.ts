@@ -174,7 +174,7 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     await this.authService.resetPassword(resetPasswordDto);
-    return { message: 'Password reset successsfully' };
+    return { message: 'Password reset successfully' };
   }
 
   @Roles('admin', 'enumerator', 'fieldCoordinator')
