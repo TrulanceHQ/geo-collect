@@ -53,14 +53,6 @@ export class AuthService {
       isVerified: false,
     });
 
-    // Log the temporary password and role to the console
-    console.log(
-      `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
-    );
-    console.log(`Role: ${createUserDto.role}`);
-    // Ensure the property name matches your DTO
-    console.log(`State: ${createUserDto.selectedState}`); // Log the selected state
-
     await this.emailUtil.sendEmail(
       createUserDto.emailAddress,
       'Account Created - Temporary Password',
@@ -110,8 +102,28 @@ export class AuthService {
     );
     console.log(`Role: ${createUserDto.role}`);
 
+    await this.emailUtil.sendEmail(
+      createUserDto.emailAddress,
+      'Account Created - Temporary Password',
+      'temporary-password',
+      {
+        password: temporaryPassword,
+        role: createUserDto.role,
+      },
+    );
+
+
     return createdUser.save();
   }
+
+  async countEnumeratorsByFieldCoordinator(
+    fieldCoordinatorId: string,
+  ): Promise<number> {
+    return this.userModel
+      .countDocuments({ fieldCoordinatorId, role: 'enumerator' })
+      .exec();
+  }
+
   async login(
     emailAddress: string,
     password: string,
@@ -129,7 +141,6 @@ export class AuthService {
         emailAddress: user.emailAddress,
         sub: user._id,
         roles: user.role,
-        // fieldCoordinatorId: user._id, // Add this field to the JWT payload
       };
       // Log the payload before signing it
       console.log('JWT Payload:', payload);

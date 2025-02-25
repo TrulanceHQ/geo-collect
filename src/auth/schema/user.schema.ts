@@ -33,16 +33,7 @@ export class User extends Document {
   creatorRole: UserRole; // <-- Add this field
 
   @Prop({ required: false })
-  selectedState: string; // Store the selected state name or ID
-
-  // @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }) // Use Types.ObjectId
-  // fieldCoordinatorId?: Types.ObjectId;
-
-  //  type: mongoose.Schema.Types.ObjectId,
-  // @Prop({ type: Types.ObjectId, ref: 'User', required: true }) // Use Types.ObjectId
-  // fieldCoordinatorId?: Types.ObjectId;
-  // @Prop({ required: false })
-  // fieldCoordinatorId?: Types.ObjectId; // Ensure this is added for the link between field coordinator and enumerator
+  selectedState: string;
 
   @Prop({ default: false })
   isActive: boolean;
@@ -77,12 +68,14 @@ export class User extends Document {
   @Prop({ required: false })
   image?: string;
 
-  // // Add the assignedTo field to refer to another User (optional)
-  // @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false })
-  // assignedTo?: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  creatorId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
-  creatorId: Types.ObjectId; // This should be the field you're using to track who created the user
+  adminId: Types.ObjectId; // Add this field
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  fieldCoordinatorId: Types.ObjectId; // Add this field
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
