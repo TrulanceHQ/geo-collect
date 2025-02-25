@@ -26,7 +26,19 @@ export class EmailUtil {
         <p>Your account has been created. Here are your details:</p>
         <p><strong>Temporary Password:</strong> ${context.password}</p>
         <p><strong>Role:</strong> ${context.role}</p>
-        <p>Please log in and update your details immediately.</p>
+        <p>Please log in and change your password immediately.</p>
+        <br>
+        <p>Best Regards,</p>
+        <p>Your Company Team</p>
+      `;
+    } else if (template === 'reset-password') {
+      htmlTemplate = `
+        <h3>Password Reset Request</h3>
+        <p>Click the link below to reset your password. This link is valid for only 5 minutes:</p>
+        <p><a href="${context.resetLink}" style="color: blue; text-decoration: underline;">
+          Reset Your Password
+        </a></p>
+        <p>If you did not request a password reset, please ignore this email.</p>
         <br>
         <p>Best Regards,</p>
         <p>Your Company Team</p>
@@ -47,5 +59,14 @@ export class EmailUtil {
       console.error('Error sending email:', error);
       throw new Error('Email could not be sent');
     }
+  }
+
+  async sendResetPasswordEmail(
+    to: string,
+    subject: string,
+    template: string,
+    context: any,
+  ) {
+    return this.sendEmail(to, subject, template, context);
   }
 }

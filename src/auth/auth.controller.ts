@@ -43,16 +43,16 @@ import { UserRole } from './schema/user.schema';
 export class UsersController {
   constructor(private readonly authService: AuthService) {}
 
-  // @Roles('admin')
+  @Roles('admin')
   @Post('/create-user')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({ status: 409, description: 'Conflict: Email already exists' })
   async create(@Body() userDto: CreateUserDto) {
-    // const { creatorRole } = userDto;
-    // if (creatorRole !== UserRole.ADMIN) {
-    //   throw new ForbiddenException('Only admins can create users');
-    // }
+    const { creatorRole } = userDto;
+    if (creatorRole !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admins can create users');
+    }
     return this.authService.createUserByAdmin(userDto);
   }
 
@@ -153,7 +153,7 @@ export class UsersController {
     return this.authService.updateUser(id, updateUserDto, file);
   }
 
-  @Roles('admin', 'enumerator')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Post('/forgot-password')
   @ApiOperation({ summary: 'Forgot Password' })
   @ApiBody({ type: ForgotPasswordDto })
@@ -165,7 +165,7 @@ export class UsersController {
     return { message: 'Reset code sent to email' };
   }
 
-  @Roles('admin', 'enumerator')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Post('/reset-password')
   @ApiOperation({ summary: 'Reset Password' })
   @ApiBody({ type: ResetPasswordDto })
@@ -193,6 +193,7 @@ export class UsersController {
   ) {
     return this.authService.updatePassword(id, changePasswordDto);
   }
+
   @Roles('admin')
   @Get('/user')
   @ApiOperation({ summary: 'Get all users (Admin only)' })
@@ -220,11 +221,8 @@ export class UsersController {
     return this.authService.countUsersByRole();
   }
 
-  //find user by ID
-
   //get all users by id
   @Roles('admin', 'enumerator', 'fieldCoordinator')
-  // @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Get('/allusers/:id')
   @ApiOperation({ summary: 'Find user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })

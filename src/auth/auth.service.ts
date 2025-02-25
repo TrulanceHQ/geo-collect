@@ -96,12 +96,6 @@ export class AuthService {
       // fieldCoordinatorId, // Associate the fieldCoordinatorId to the new user
     });
 
-    // Log the temporary password and role to the console
-    console.log(
-      `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
-    );
-    console.log(`Role: ${createUserDto.role}`);
-
     await this.emailUtil.sendEmail(
       createUserDto.emailAddress,
       'Account Created - Temporary Password',
@@ -142,17 +136,17 @@ export class AuthService {
         sub: user._id,
         roles: user.role,
       };
-      // Log the payload before signing it
-      console.log('JWT Payload:', payload);
 
       const accessToken = this.jwtService.sign(payload);
       return { accessToken, user };
     }
     throw new UnauthorizedException('Username or Password Incorrect');
   }
+
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
+
   async forgotPassword(emailAddress: string): Promise<void> {
     const user = await this.userModel.findOne({ emailAddress }).exec();
     if (!user) {
@@ -166,14 +160,14 @@ export class AuthService {
     user.resetTokenExpires = resetTokenExpires;
     await user.save();
 
-    // const resetLink = `${process.env.FRONTEND_URL}?token=${resetToken}`;
+    const resetLink = `${process.env.FRONTEND_URL}?token=${resetToken}`;
 
-    // await this.emailUtil.sendResetPasswordEmail(
-    //   emailAddress,
-    //   'Password Reset Request',
-    //   'reset-password',
-    //   { resetLink },
-    // );
+    await this.emailUtil.sendResetPasswordEmail(
+      emailAddress,
+      'Password Reset Request',
+      'reset-password',
+      { resetLink },
+    );
 
     return;
   }
@@ -207,6 +201,7 @@ export class AuthService {
     user.resetTokenExpires = undefined;
     await user.save();
   }
+
   async findUsersByRole(
     role: string,
     page: number,
@@ -239,6 +234,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
   }
+
   async updateUser(
     id: string,
     UpdateUserDto: UpdateUserDto,
