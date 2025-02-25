@@ -153,7 +153,7 @@ export class UsersController {
     return this.authService.updateUser(id, updateUserDto, file);
   }
 
-  @Roles('admin', 'enumerator')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Post('/forgot-password')
   @ApiOperation({ summary: 'Forgot Password' })
   @ApiBody({ type: ForgotPasswordDto })
@@ -165,7 +165,7 @@ export class UsersController {
     return { message: 'Reset code sent to email' };
   }
 
-  @Roles('admin', 'enumerator')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Post('/reset-password')
   @ApiOperation({ summary: 'Reset Password' })
   @ApiBody({ type: ResetPasswordDto })
@@ -177,7 +177,7 @@ export class UsersController {
     return { message: 'Password reset successfully' };
   }
 
-  @Roles('admin', 'enumerator')
+  @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Patch('/change-password/:id')
   @ApiOperation({ summary: 'Change user password' })
   @ApiBody({ type: ChangePasswordDto })
@@ -193,6 +193,7 @@ export class UsersController {
   ) {
     return this.authService.updatePassword(id, changePasswordDto);
   }
+
   @Roles('admin')
   @Get('/user')
   @ApiOperation({ summary: 'Get all users (Admin only)' })
@@ -220,15 +221,23 @@ export class UsersController {
     return this.authService.countUsersByRole();
   }
 
-  //find user by ID
-
   //get all users by id
   @Roles('admin', 'enumerator', 'fieldCoordinator')
-  // @Roles('admin', 'enumerator', 'fieldCoordinator')
   @Get('/allusers/:id')
   @ApiOperation({ summary: 'Find user by ID' })
   @ApiResponse({ status: 200, description: 'User found' })
   async getAdminUser(@Param('id') id: string) {
     return this.authService.findUserById(id);
+  }
+  // countenumbyfieldcoordinator
+
+  @Roles('fieldCoordinator')
+  @Get('/count-enumerators/:fieldCoordinatorId')
+  async countEnumeratorsByFieldCoordinator(
+    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  ): Promise<number> {
+    return this.authService.countEnumeratorsByFieldCoordinator(
+      fieldCoordinatorId,
+    );
   }
 }

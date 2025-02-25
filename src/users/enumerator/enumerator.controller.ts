@@ -34,7 +34,6 @@ export class EnumeratorController {
     return this.dataEntryQuestionsService.getAllQuestionSets();
   }
 
-  
   @UseGuards(JwtAuthGuard)
   @Post('survey/submit')
   @ApiOperation({ summary: 'Submit survey responses' })

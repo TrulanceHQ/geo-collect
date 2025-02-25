@@ -15,7 +15,7 @@ import { User } from './schema/user.schema';
 import { ChangePasswordDto } from './dto/changepassword.dto';
 import * as bcrypt from 'bcryptjs';
 import { isValidObjectId } from 'mongoose';
-import { EmailUtil } from '../utils/email/email.util';
+import { EmailUtil } from '../utils/email/email-util.service';
 import { CreateUserDto } from './dto/createuser.dto';
 import { CloudinaryService } from 'src/utils/cloudinary/cloudinary.service';
 import { UpdateUserDto } from './dto/updateuser.dto';
@@ -53,23 +53,15 @@ export class AuthService {
       isVerified: false,
     });
 
-    // Log the temporary password and role to the console
-    console.log(
-      `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
+    await this.emailUtil.sendEmail(
+      createUserDto.emailAddress,
+      'Account Created - Temporary Password',
+      'temporary-password',
+      {
+        password: temporaryPassword,
+        role: createUserDto.role,
+      },
     );
-    console.log(`Role: ${createUserDto.role}`);
-    // Ensure the property name matches your DTO
-    console.log(`State: ${createUserDto.selectedState}`); // Log the selected state
-
-    // await this.emailUtil.sendEmail(
-    //   createUserDto.emailAddress,
-    //   'Account Created - Temporary Password',
-    //   'temporary-password',
-    //   {
-    //     password: temporaryPassword,
-    //     role: createUserDto.role
-    //   },
-    // );
 
     return createdUser.save();
   }
@@ -104,14 +96,27 @@ export class AuthService {
       // fieldCoordinatorId, // Associate the fieldCoordinatorId to the new user
     });
 
-    // Log the temporary password and role to the console
-    console.log(
-      `Temporary password for ${createUserDto.emailAddress}: ${temporaryPassword}`,
+    await this.emailUtil.sendEmail(
+      createUserDto.emailAddress,
+      'Account Created - Temporary Password',
+      'temporary-password',
+      {
+        password: temporaryPassword,
+        role: createUserDto.role,
+      },
     );
-    console.log(`Role: ${createUserDto.role}`);
 
     return createdUser.save();
   }
+
+  async countEnumeratorsByFieldCoordinator(
+    fieldCoordinatorId: string,
+  ): Promise<number> {
+    return this.userModel
+      .countDocuments({ fieldCoordinatorId, role: 'enumerator' })
+      .exec();
+  }
+
   async login(
     emailAddress: string,
     password: string,
@@ -129,19 +134,18 @@ export class AuthService {
         emailAddress: user.emailAddress,
         sub: user._id,
         roles: user.role,
-        fieldCoordinatorId: user._id, // Add this field to the JWT payload
       };
-      // Log the payload before signing it
-      console.log('JWT Payload:', payload);
 
       const accessToken = this.jwtService.sign(payload);
       return { accessToken, user };
     }
     throw new UnauthorizedException('Username or Password Incorrect');
   }
+
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
+
   async forgotPassword(emailAddress: string): Promise<void> {
     const user = await this.userModel.findOne({ emailAddress }).exec();
     if (!user) {
@@ -196,6 +200,7 @@ export class AuthService {
     user.resetTokenExpires = undefined;
     await user.save();
   }
+
   async findUsersByRole(
     role: string,
     page: number,
@@ -263,6 +268,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
   }
+
   async updateUser(
     id: string,
     UpdateUserDto: UpdateUserDto,
