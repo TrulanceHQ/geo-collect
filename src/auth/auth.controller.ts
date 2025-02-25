@@ -231,4 +231,15 @@ export class UsersController {
   async getAdminUser(@Param('id') id: string) {
     return this.authService.findUserById(id);
   }
+  // countenumbyfieldcoordinator
+
+  @Roles('fieldCoordinator')
+  @Get('/count-enumerators/:fieldCoordinatorId')
+  async countEnumeratorsByFieldCoordinator(
+    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  ): Promise<number> {
+    return this.authService.countEnumeratorsByFieldCoordinator(
+      fieldCoordinatorId,
+    );
+  }
 }
