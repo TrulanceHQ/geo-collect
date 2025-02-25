@@ -63,7 +63,7 @@ export class DataEntryQuestionsService {
   //   return this.dataEntryModel.create(dataEntryDto);
   // }
 
-  // async processSections(
+  // async processSectionns(
   // async createQuestionSet(
   //   dataEntryDto: CreateDataEntryQuestionDto,
   // ): Promise<void> {
