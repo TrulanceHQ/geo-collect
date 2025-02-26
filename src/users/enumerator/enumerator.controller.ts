@@ -2,7 +2,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -14,6 +24,7 @@ import { DataEntryQuestion } from './../admin/all-data/data-questions/data-quest
 import { EnumeratorFlowService } from './enumerator.service';
 import { JwtAuthGuard } from 'src/utils/JwtAuthGuard';
 import { SurveyResponse } from './survey-response.schema';
+import { Roles } from 'src/utils/roles/roles.decorator';
 
 @ApiTags('Enumerator Flow')
 @ApiBearerAuth()
@@ -64,5 +75,72 @@ export class EnumeratorController {
     return this.EnumeratorFlowService.getSurveyResponsesByEnumerator(
       enumeratorId,
     );
+  }
+
+  //new
+
+  // @Roles('fieldCoordinator')
+  // @Get('/responses/:fieldCoordinatorId')
+  // @ApiOperation({ summary: 'Get survey responses by field coordinator' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Survey responses retrieved successfully',
+  // })
+  // @ApiResponse({ status: 404, description: 'No survey responses found' })
+  // async getResponsesByFieldCoordinator(
+  //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   // (
+  //   //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  //   // )
+
+  //   return this.EnumeratorFlowService.getResponsesByFieldCoordinator(
+  //     fieldCoordinatorId,
+  //   );
+  // }
+
+  // then fetch survey responses by enumerator IDs:
+  @Roles('fieldCoordinator')
+  @Get('by-field-coordinator/:fieldCoordinatorId')
+  @ApiOperation({ summary: 'Get survey responses by field coordinator' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the survey responses by field coordinator',
+  })
+  async getSurveyResponsesByFieldCoordinator(
+    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  ) {
+    return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
+      fieldCoordinatorId,
+    );
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Roles('fieldCoordinator')
+  @Get('responses/count/:fieldCoordinatorId')
+  @ApiOperation({ summary: 'Get total responses count by field coordinator' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Returns the total number of responses submitted by enumerators created by the specified field coordinator.',
+  })
+  async getResponsesCountByFieldCoordinator(
+    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  ): Promise<{ count: number; message: string }> {
+    return this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
+      fieldCoordinatorId,
+    );
+  }
+
+  //fetch all data for admin
+  @Roles('admin')
+  @Get('all-responses-by-admin')
+  @ApiOperation({ summary: 'Get all responses' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the all responses.',
+  })
+  async getAllSurveyResponses(): Promise<SurveyResponse[]> {
+    return this.EnumeratorFlowService.getAllSurveyResponses();
   }
 }
