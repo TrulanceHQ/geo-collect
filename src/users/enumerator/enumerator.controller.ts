@@ -77,29 +77,6 @@ export class EnumeratorController {
     );
   }
 
-  //new
-
-  // @Roles('fieldCoordinator')
-  // @Get('/responses/:fieldCoordinatorId')
-  // @ApiOperation({ summary: 'Get survey responses by field coordinator' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'Survey responses retrieved successfully',
-  // })
-  // @ApiResponse({ status: 404, description: 'No survey responses found' })
-  // async getResponsesByFieldCoordinator(
-  //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  // ): Promise<SurveyResponse[]> {
-  //   // (
-  //   //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  //   // )
-
-  //   return this.EnumeratorFlowService.getResponsesByFieldCoordinator(
-  //     fieldCoordinatorId,
-  //   );
-  // }
-
-  // then fetch survey responses by enumerator IDs:
   @Roles('fieldCoordinator')
   @Get('by-field-coordinator/:fieldCoordinatorId')
   @ApiOperation({ summary: 'Get survey responses by field coordinator' })
