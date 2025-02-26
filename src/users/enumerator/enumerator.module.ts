@@ -12,12 +12,14 @@ import { JwtModule } from '@nestjs/jwt';
 // import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from 'src/utils/JwtAuthGuard';
 import { AuthModule } from 'src/auth/auth.module';
+import { User, UserSchema } from 'src/auth/schema/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: DataEntryQuestion.name, schema: DataEntryQuestionSchema },
       { name: SurveyResponse.name, schema: SurveyResponseSchema },
+      { name: User.name, schema: UserSchema },
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET, // Ensure this matches the secret used to sign the JWT
