@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -10,6 +10,7 @@ import { User } from 'src/auth/schema/user.schema';
 
 @Injectable()
 export class EnumeratorFlowService {
+  private readonly logger = new Logger(EnumeratorFlowService.name);
   constructor(
     @InjectModel(SurveyResponse.name)
     private surveyResponseModel: Model<SurveyResponseDocument>,
@@ -50,6 +51,222 @@ export class EnumeratorFlowService {
       .exec();
   }
 
+  async getEnumeratorsByFieldCoordinator(
+    fieldCoordinatorId: string,
+  ): Promise<User[]> {
+    const enumerators = await this.userModel
+      .find({ fieldCoordinatorId })
+      .exec();
+    this.logger.log(
+      `Enumerators for fieldCoordinatorId ${fieldCoordinatorId}: ${JSON.stringify(enumerators)}`,
+    );
+    return enumerators;
+  }
+
+  // async getSurveyResponsesByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   const enumerators =
+  //     await this.getEnumeratorsByFieldCoordinator(fieldCoordinatorId);
+  //   const enumeratorIds = enumerators.map((enumerator) => enumerator._id);
+
+  //   this.logger.log(`Found enumerators: ${JSON.stringify(enumerators)}`);
+  //   this.logger.log(`Enumerator IDs: ${JSON.stringify(enumeratorIds)}`);
+
+  //   if (enumeratorIds.length === 0) {
+  //     this.logger.warn(
+  //       `No enumerators found for fieldCoordinatorId ${fieldCoordinatorId}`,
+  //     );
+  //     return [];
+  //   }
+
+  //   this.logger.log(
+  //     `Fetching survey responses for enumeratorIds: ${JSON.stringify(enumeratorIds)}`,
+  //   );
+
+  //   const surveyResponses = await this.surveyResponseModel
+  //     .find({ enumeratorId: { $in: enumeratorIds } })
+  //     .populate('enumeratorId', 'name email')
+  //     .populate('surveyId', 'title')
+  //     .exec();
+
+  //   this.logger.log(`Survey responses: ${JSON.stringify(surveyResponses)}`);
+
+  //   return surveyResponses;
+  // }
+
+  // async getSurveyResponsesByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   const enumerators =
+  //     await this.getEnumeratorsByFieldCoordinator(fieldCoordinatorId);
+  //   const enumeratorIds = enumerators.map((enumerator) => enumerator._id);
+
+  //   this.logger.log(`Found enumerators: ${JSON.stringify(enumerators)}`);
+  //   this.logger.log(`Enumerator IDs: ${JSON.stringify(enumeratorIds)}`);
+
+  //   if (enumeratorIds.length === 0) {
+  //     this.logger.warn(
+  //       `No enumerators found for fieldCoordinatorId ${fieldCoordinatorId}`,
+  //     );
+  //     return [];
+  //   }
+
+  //   this.logger.log(
+  //     `Fetching survey responses for enumeratorIds: ${JSON.stringify(enumeratorIds)}`,
+  //   );
+
+  //   const surveyResponses = await this.surveyResponseModel
+  //     .find({ enumeratorId: { $in: enumeratorIds } })
+  //     .populate('enumeratorId', 'name email')
+  //     .populate('surveyId', 'title')
+  //     .exec();
+
+  //   this.logger.log(
+  //     `Survey responses from DB: ${JSON.stringify(surveyResponses)}`,
+  //   );
+
+  //   const testQuery = await this.surveyResponseModel
+  //     .findOne() // Fetch a single document for testing
+  //     .populate('enumeratorId', 'name email')
+  //     .populate('surveyId', 'title')
+  //     .exec();
+
+  //   this.logger.log(`Test query result: ${JSON.stringify(testQuery)}`);
+
+  //   return surveyResponses;
+  // }
+
+  async getSurveyResponsesByFieldCoordinator(
+    fieldCoordinatorId: string,
+  ): Promise<SurveyResponse[]> {
+    const enumerators =
+      await this.getEnumeratorsByFieldCoordinator(fieldCoordinatorId);
+    const enumeratorIds = enumerators.map((enumerator) => enumerator._id);
+
+    this.logger.log(`Found enumerators: ${JSON.stringify(enumerators)}`);
+    this.logger.log(`Enumerator IDs: ${JSON.stringify(enumeratorIds)}`);
+
+    if (enumeratorIds.length === 0) {
+      this.logger.warn(
+        `No enumerators found for fieldCoordinatorId ${fieldCoordinatorId}`,
+      );
+      return [];
+    }
+
+    this.logger.log(
+      `Fetching survey responses for enumeratorIds: ${JSON.stringify(enumeratorIds)}`,
+    );
+
+    try {
+      const surveyResponses = await this.surveyResponseModel
+        .find({ enumeratorId: { $in: enumeratorIds } })
+        .populate('enumeratorId', 'name email')
+        .populate('surveyId')
+        // .populate('surveyId', 'title')
+        // .populate('surveyId', 'title')
+        .exec();
+
+      this.logger.log(
+        `Survey responses from DB: ${JSON.stringify(surveyResponses)}`,
+      );
+
+      const results = await this.surveyResponseModel.aggregate([
+        {
+          $match: { enumeratorId: { $in: enumeratorIds } },
+        },
+        {
+          $lookup: {
+            from: 'DataEntryQuestions', // Make sure the collection name matches
+            localField: 'surveyId',
+            foreignField: '_id',
+            as: 'survey',
+          },
+        },
+      ]);
+
+      console.log(results);
+
+      const responses = await this.surveyResponseModel
+        .find({
+          enumeratorId: { $in: enumeratorIds },
+        })
+        .exec();
+
+      console.log(responses);
+
+      if (surveyResponses.length === 0) {
+        this.logger.warn(
+          `No survey responses found for enumeratorIds: ${JSON.stringify(enumeratorIds)}`,
+        );
+      } else {
+        surveyResponses.forEach((responses) => {
+          this.logger.log(`Survey Response ID: ${responses._id}`);
+          this.logger.log(`Survey ID: ${responses.surveyId}`);
+          this.logger.log(`Enumerator ID: ${responses.enumeratorId}`);
+        });
+      }
+
+      return surveyResponses;
+    } catch (error) {
+      this.logger.error(
+        `Error fetching survey responses: ${error.message}`,
+        error.stack,
+      );
+      throw new Error(
+        `Failed to fetch survey responses for enumeratorIds: ${JSON.stringify(enumeratorIds)}`,
+      );
+    }
+  }
+
+  // async getSurveyResponsesByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   const enumerators =
+  //     await this.getEnumeratorsByFieldCoordinator(fieldCoordinatorId);
+  //   const enumeratorIds = enumerators.map((enumerator) => enumerator._id);
+
+  //   if (enumeratorIds.length === 0) {
+  //     this.logger.warn(
+  //       `No enumerators found for fieldCoordinatorId ${fieldCoordinatorId}`,
+  //     );
+  //     return [];
+  //   }
+
+  //   this.logger.log(
+  //     `Fetching survey responses for enumeratorIds: ${JSON.stringify(enumeratorIds)}`,
+  //   );
+  //   return this.surveyResponseModel
+  //     .find({ enumeratorId: { $in: enumeratorIds } })
+  //     .populate('enumeratorId', 'firstName emailAddress')
+  //     .populate('enumeratorId', 'location')
+  //     .exec();
+  // }
+
+  // //fetch enumerators by field coordinator id
+
+  // async getEnumeratorsByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<User[]> {
+  //   return this.userModel.find({ fieldCoordinatorId }).exec();
+  // }
+
+  // // then fetch survey responses by enumerator IDs:
+
+  // async getSurveyResponsesByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   const enumerators =
+  //     await this.getEnumeratorsByFieldCoordinator(fieldCoordinatorId);
+  //   const enumeratorIds = enumerators.map((enumerator) => enumerator._id);
+
+  //   return this.surveyResponseModel
+  //     .find({ enumeratorId: { $in: enumeratorIds } })
+  //     .populate('enumeratorId', 'name email')
+  //     .populate('surveyId', 'title')
+  //     .exec();
+  // }
+
   //new
   // async getResponsesByFieldCoordinator(
   //   fieldCoordinatorId: string,
@@ -66,30 +283,6 @@ export class EnumeratorFlowService {
   //     .populate('enumeratorId', 'name email')
   //     .exec();
   // }
-  async getResponsesByFieldCoordinator(
-    fieldCoordinatorId: string,
-  ): Promise<SurveyResponse[]> {
-    const enumerators = await this.userModel
-      .find({ fieldCoordinatorId, role: 'enumerator' })
-      .select('_id')
-      .exec();
-
-    if (enumerators.length === 0) {
-      console.log(
-        `No enumerators found for fieldCoordinatorId: ${fieldCoordinatorId}`,
-      );
-      return [];
-    }
-
-    const enumeratorIds = enumerators.map((enumerator) => enumerator._id);
-
-    const responses = await this.surveyResponseModel
-      .find({ enumeratorId: { $in: enumeratorIds } })
-      .populate('enumeratorId', 'name email')
-      .exec();
-
-    return responses;
-  }
 
   // New method to get responses count by field coordinator
   // async getResponseCountByFieldCoordinator(
@@ -131,5 +324,10 @@ export class EnumeratorFlowService {
     }
 
     return { count, message };
+  }
+
+  //fetch all data for admin
+  async getAllSurveyResponses(): Promise<SurveyResponse[]> {
+    return this.surveyResponseModel.find().populate('surveyId', 'title').exec();
   }
 }

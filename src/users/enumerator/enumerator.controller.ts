@@ -79,14 +79,14 @@ export class EnumeratorController {
 
   //new
 
-  @Roles('fieldCoordinator')
-  @Get('/responses/:fieldCoordinatorId')
-  @ApiOperation({ summary: 'Get survey responses by field coordinator' })
-  @ApiResponse({
-    status: 200,
-    description: 'Survey responses retrieved successfully',
-  })
-  @ApiResponse({ status: 404, description: 'No survey responses found' })
+  // @Roles('fieldCoordinator')
+  // @Get('/responses/:fieldCoordinatorId')
+  // @ApiOperation({ summary: 'Get survey responses by field coordinator' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Survey responses retrieved successfully',
+  // })
+  // @ApiResponse({ status: 404, description: 'No survey responses found' })
   // async getResponsesByFieldCoordinator(
   //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
   // ): Promise<SurveyResponse[]> {
@@ -98,29 +98,21 @@ export class EnumeratorController {
   //     fieldCoordinatorId,
   //   );
   // }
-  async getResponsesByFieldCoordinator(
+
+  // then fetch survey responses by enumerator IDs:
+  @Roles('fieldCoordinator')
+  @Get('by-field-coordinator/:fieldCoordinatorId')
+  @ApiOperation({ summary: 'Get survey responses by field coordinator' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the survey responses by field coordinator',
+  })
+  async getSurveyResponsesByFieldCoordinator(
     @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  ): Promise<SurveyResponse[]> {
-    console.log(
-      `Fetching responses for fieldCoordinatorId: ${fieldCoordinatorId}`,
+  ) {
+    return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
+      fieldCoordinatorId,
     );
-
-    const responses =
-      await this.EnumeratorFlowService.getResponsesByFieldCoordinator(
-        fieldCoordinatorId,
-      );
-
-    if (responses.length === 0) {
-      console.log(
-        `No survey responses found for fieldCoordinatorId: ${fieldCoordinatorId}`,
-      );
-      throw new NotFoundException('No survey responses found');
-    }
-
-    console.log(
-      `Found ${responses.length} responses for fieldCoordinatorId: ${fieldCoordinatorId}`,
-    );
-    return responses;
   }
 
   // @UseGuards(JwtAuthGuard)
@@ -138,5 +130,17 @@ export class EnumeratorController {
     return this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
       fieldCoordinatorId,
     );
+  }
+
+  //fetch all data for admin
+  @Roles('admin')
+  @Get('all-responses-by-admin')
+  @ApiOperation({ summary: 'Get all responses' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the all responses.',
+  })
+  async getAllSurveyResponses(): Promise<SurveyResponse[]> {
+    return this.EnumeratorFlowService.getAllSurveyResponses();
   }
 }
