@@ -5,6 +5,8 @@ import { DataEntryQuestionsService } from './../admin/all-data/data-questions/da
 import {
   DataEntryQuestion,
   DataEntryQuestionSchema,
+  Question,
+  // Question,
 } from './../admin/all-data/data-questions/data-questions.schema';
 import { EnumeratorFlowService } from './enumerator.service';
 import { SurveyResponse, SurveyResponseSchema } from './survey-response.schema';
@@ -17,6 +19,7 @@ import { User, UserSchema } from 'src/auth/schema/user.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
+      // { name: Question.name, schema: DataEntryQuestionSchema },
       { name: DataEntryQuestion.name, schema: DataEntryQuestionSchema },
       { name: SurveyResponse.name, schema: SurveyResponseSchema },
       { name: User.name, schema: UserSchema },

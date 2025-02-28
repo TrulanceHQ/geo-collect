@@ -68,7 +68,6 @@ export class AuthService {
 
   async createEnumeratorByFieldCoordinator(
     createUserDto: CreateUserDto,
-    // fieldCoordinatorId: string, // Accept fieldCoordinatorId here
   ): Promise<User> {
     const existingUser = await this.userModel
       .findOne({ emailAddress: createUserDto.emailAddress })
@@ -93,7 +92,7 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
       isVerified: false,
-      // fieldCoordinatorId, // Associate the fieldCoordinatorId to the new user
+      // fieldCoordinatorId: createUserDto.fieldCoordinatorId, // Note: ensure the DTO includes fieldCoordinatorId
     });
 
     await this.emailUtil.sendEmail(

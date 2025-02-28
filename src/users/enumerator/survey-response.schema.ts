@@ -12,7 +12,8 @@ export class SurveyResponse {
   @Prop({ required: true })
   responses: Array<{
     questionId: Types.ObjectId;
-    response: string;
+    question: string;
+    answer: string;
   }>;
 
   @Prop({ required: true })

@@ -7,6 +7,11 @@ import {
 } from './survey-response.schema';
 import { SubmitSurveyResponseDto } from './dto/survey-response.dto';
 import { User } from 'src/auth/schema/user.schema';
+import {
+  DataEntryDocument,
+  DataEntryQuestion,
+  QuestionType,
+} from '../admin/all-data/data-questions/data-questions.schema';
 
 @Injectable()
 export class EnumeratorFlowService {
@@ -14,20 +19,101 @@ export class EnumeratorFlowService {
   constructor(
     @InjectModel(SurveyResponse.name)
     private surveyResponseModel: Model<SurveyResponseDocument>,
+    @InjectModel(DataEntryQuestion.name)
+    private dataEntryQuestionModel: Model<DataEntryDocument>,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
+  // async submitSurveyResponse(
+  //   surveyId: string,
+  //   responses: SubmitSurveyResponseDto['responses'],
+  //   enumeratorId: string,
+  //   location: SubmitSurveyResponseDto['location'],
+  //   mediaUrl: SubmitSurveyResponseDto['mediaUrl'],
+  // ): Promise<SurveyResponse> {
+  //   const newResponse = new this.surveyResponseModel({
+  //     surveyId: new Types.ObjectId(surveyId),
+  //     enumeratorId,
+  //     responses,
+  //     location,
+  //     mediaUrl,
+  //   });
+
+  //   return newResponse.save();
+  // }
+
+  //new
   async submitSurveyResponse(
     surveyId: string,
-    responses: SubmitSurveyResponseDto['responses'],
+    responses: Array<{ questionId: string; answer: any }>,
+    // responses: Array<{ questionId: string; answer: string }>,
+    // responses: { questionId: Types.ObjectId; response: string }[],
     enumeratorId: string,
-    location: SubmitSurveyResponseDto['location'],
-    mediaUrl: SubmitSurveyResponseDto['mediaUrl'],
+    location: string,
+    mediaUrl: string,
   ): Promise<SurveyResponse> {
+    // Use the injected model instance to access findById and other methods.
+    const surveyDefinition = await this.dataEntryQuestionModel
+      .findById(surveyId)
+      .lean();
+    if (!surveyDefinition || !surveyDefinition.sections) {
+      throw new Error('Survey definition not found');
+    }
+
+    // Enrich responses with question text if needed (see previous logic)
+    const enrichedResponses = responses.map((entry) => {
+      // let question = '';
+      let question = '';
+      let processedAnswer = entry.answer; // default for non-likert responses
+
+      // Loop through each section and their questions to find the corresponding question.
+      for (const section of surveyDefinition.sections) {
+        // const matchedQuestion = section.questions.find((q) =>
+        //   new Types.ObjectId(q._id).equals(entry.questionId)
+        // );
+        const matchedQuestion = section.questions.find(
+          (q: any) =>
+            // Compare using string representations
+            String(q._id) === String(entry.questionId),
+        );
+
+        if (matchedQuestion) {
+          question = matchedQuestion.question; // 'question' is the text from your schema
+
+          //new
+
+          if (matchedQuestion.type === QuestionType.LIKERT_SCALE) {
+            // For instance, if the client sends the answer as an object with sub-question responses,
+            // you might want to store it as a JSON string.
+            if (typeof entry.answer === 'object') {
+              processedAnswer = JSON.stringify(entry.answer);
+            } else {
+              processedAnswer = entry.answer;
+            }
+          }
+          //new ends
+          break;
+        }
+      }
+      // Logging for debugging: make sure both fields are correctly captured.
+      this.logger.debug(
+        // `Enriched entry: questionId: ${entry.questionId}, question: ${question}, response: ${entry.answer}`,
+        `Enriched entry: questionId: ${entry.questionId}, question: ${question}, response: ${processedAnswer}`,
+      );
+
+      return {
+        questionId: entry.questionId,
+        // Optionally include question if you've updated your SurveyResponse schema.
+        question: question,
+        answer: processedAnswer,
+        // answer: entry.answer,
+      };
+    });
+
     const newResponse = new this.surveyResponseModel({
       surveyId: new Types.ObjectId(surveyId),
       enumeratorId,
-      responses,
+      responses: enrichedResponses,
       location,
       mediaUrl,
     });
@@ -170,7 +256,59 @@ export class EnumeratorFlowService {
   }
 
   //fetch all data for admin
+  // async getAllSurveyResponses(): Promise<SurveyResponse[]> {
+  //   return this.surveyResponseModel
+  //     .find()
+  //     .populate('surveyId', 'title')
+  //     .populate('enumeratorId', 'firstName lastName') // Populate enumerator's name
+  //     .populate('responses.questionId', 'question')
+  //     .exec();
+  // }
+
+  // async getAllSurveyResponses(): Promise<SurveyResponse[]> {
+  //   return (
+  //     this.surveyResponseModel
+  //       .find()
+  //       .populate({
+  //         path: 'surveyId',
+  //         select: 'title subtitle',
+  //         // populate: {
+  //         //   path: 'sections.questions',
+  //         //   select: 'question',
+  //         // },
+  //       })
+  //       .populate({
+  //         path: 'enumeratorId',
+  //         select: 'firstName lastName fieldCoordinatorId', // include fieldCoordinatorId on enumerator
+  //         populate: {
+  //           path: 'fieldCoordinatorId',
+  //           select: '_id firstName lastName', // select fields from the field coordinator
+  //         },
+  //       })
+  //       // .populate('enumeratorId', 'firstName lastName')
+  //       .populate('responses.questionId', 'question') // <-- Add this line
+  //       .exec()
+  //   );
+  // }
+
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
-    return this.surveyResponseModel.find().populate('surveyId', 'title').exec();
+    return (
+      this.surveyResponseModel
+        .find()
+        .populate({
+          path: 'surveyId',
+          select: 'title subtitle',
+        })
+        .populate({
+          path: 'enumeratorId',
+          select: { firstName: 1, lastName: 1, fieldCoordinatorId: 1 }, // Ensure fieldCoordinatorId is selected
+          populate: {
+            path: 'fieldCoordinatorId',
+            select: { firstName: 1, lastName: 1, selectedState: 1 }, // Populate the related user (field coordinator) with these fields
+          },
+        })
+        // .populate('responses.questionId', 'question')
+        .exec()
+    );
   }
 }
