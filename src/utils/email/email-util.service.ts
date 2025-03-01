@@ -32,7 +32,7 @@ export class EmailUtil {
         <p>Please log in and change your password immediately.</p>
         <br>
         <p>Best Regards,</p>
-        <p>Your Company Team</p>
+        <p>8thGear Hub</p>
       `;
     } else if (template === 'reset-password') {
       htmlTemplate = `
@@ -44,7 +44,7 @@ export class EmailUtil {
         <p>If you did not request a password reset, please ignore this email.</p>
         <br>
         <p>Best Regards,</p>
-        <p>Your Company Team</p>
+        <p>8thGear Hub</p>
       `;
     }
 
