@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   SurveyResponse,
   SurveyResponseDocument,
@@ -46,6 +46,7 @@ export class EnumeratorFlowService {
   ): Promise<SurveyResponse[]> {
     return this.surveyResponseModel
       .find({ enumeratorId })
+      .select('surveyId responses location mediaUrl')
       .populate('surveyId', 'title')
       .exec();
   }
@@ -66,6 +67,7 @@ export class EnumeratorFlowService {
   //     .populate('enumeratorId', 'name email')
   //     .exec();
   // }
+
   async getResponsesByFieldCoordinator(
     fieldCoordinatorId: string,
   ): Promise<SurveyResponse[]> {

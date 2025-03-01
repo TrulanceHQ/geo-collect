@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -9,7 +10,6 @@ import {
   NotFoundException,
   Param,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -105,7 +105,7 @@ export class EnumeratorController {
       `Fetching responses for fieldCoordinatorId: ${fieldCoordinatorId}`,
     );
 
-    const responses =
+    const responses: SurveyResponse[] =
       await this.EnumeratorFlowService.getResponsesByFieldCoordinator(
         fieldCoordinatorId,
       );
@@ -135,8 +135,13 @@ export class EnumeratorController {
   async getResponsesCountByFieldCoordinator(
     @Param('fieldCoordinatorId') fieldCoordinatorId: string,
   ): Promise<{ count: number; message: string }> {
-    return this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
-      fieldCoordinatorId,
-    );
+    const result: { count: number; message: string } | null =
+      await this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
+        fieldCoordinatorId,
+      );
+    if (!result) {
+      throw new NotFoundException('No response count found');
+    }
+    return result;
   }
 }
