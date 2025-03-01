@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // import { ApiProperty } from '@nestjs/swagger';
 // import {
@@ -239,6 +240,7 @@ import {
   ValidateIf,
   IsNotEmpty,
   ArrayNotEmpty,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { QuestionType } from './data-questions.schema';
@@ -313,6 +315,16 @@ export class QuestionDto {
       o.type === QuestionType.MULTIPLE_CHOICE,
   )
   options?: Option[];
+
+  @ApiProperty({
+    example: false,
+    description:
+      'Enable an "Other" text field for additional responses in single-choice questions.',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  allowOther?: boolean;
 
   @ApiProperty({
     type: [LikertQuestionDto],

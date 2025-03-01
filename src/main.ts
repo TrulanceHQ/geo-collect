@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useGlobalFilters(new MongoExceptionFilter());
   const configService = app.get(ConfigService);
 
-  const port = configService.get<number>('PORT') || 3005;
+  const port = configService.get<number>('PORT') || 3000;
 
   // Enable CORS
   app.enableCors({

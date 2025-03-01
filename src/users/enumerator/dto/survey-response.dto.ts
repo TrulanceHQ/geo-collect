@@ -13,7 +13,7 @@ export class SurveyResponseDto {
   @ApiProperty({ example: 'Blue', description: 'Selected answer' })
   @IsString()
   @IsNotEmpty()
-  response: string;
+  answer: string;
 }
 
 export class SubmitSurveyResponseDto {
