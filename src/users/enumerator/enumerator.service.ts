@@ -54,7 +54,7 @@ export class EnumeratorFlowService {
     enumeratorId: string,
     location: string,
     mediaUrl: string,
-    startTime: string,
+    startTime: Date, // <-- New parameter added
   ): Promise<SurveyResponse> {
     // Use the injected model instance to access findById and other methods.
     const surveyDefinition = await this.dataEntryQuestionModel
@@ -317,4 +317,34 @@ export class EnumeratorFlowService {
         .exec()
     );
   }
+
+  // async getAllSurveyResponses(
+  //   selectedState?: string,
+  // ): Promise<SurveyResponse[]> {
+  //   const query = this.surveyResponseModel.find();
+
+  //   if (selectedState) {
+  //     query
+  //       .where('enumeratorId.fieldCoordinatorId.selectedState')
+  //       .equals(selectedState);
+  //   }
+
+  //   return (
+  //     query
+  //       .populate({
+  //         path: 'surveyId',
+  //         select: 'title subtitle',
+  //       })
+  //       .populate({
+  //         path: 'enumeratorId',
+  //         select: { firstName: 1, lastName: 1, fieldCoordinatorId: 1 },
+  //         populate: {
+  //           path: 'fieldCoordinatorId',
+  //           select: { firstName: 1, lastName: 1, selectedState: 1 },
+  //         },
+  //       })
+  //       // .populate('responses.questionId', 'question')
+  //       .exec()
+  //   );
+  // }
 }

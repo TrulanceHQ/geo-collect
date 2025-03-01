@@ -50,9 +50,6 @@ export class EnumeratorController {
   async submitSurveyResponse(@Body() body: any, @Req() req) {
     const enumeratorId = req.user.sub as string;
     const { surveyId, responses, location, mediaUrl, startTime } = body;
-
-    console.log(body);
-    
     return this.EnumeratorFlowService.submitSurveyResponse(
       surveyId,
       responses,
@@ -117,7 +114,7 @@ export class EnumeratorController {
     return result;
   }
 
-  //fetch all data for admin
+  // //fetch all data for admin
   @Roles('admin')
   @Get('all-responses-by-admin')
   @ApiOperation({ summary: 'Get all responses' })
@@ -128,4 +125,13 @@ export class EnumeratorController {
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
     return await this.EnumeratorFlowService.getAllSurveyResponses();
   }
+  // @Roles('admin')
+  // @Get('all-responses-by-admin')
+  // @ApiOperation({ summary: 'Get all responses' })
+  // @ApiResponse({ status: 200, description: 'Returns all responses.' })
+  // async getAllSurveyResponses(
+  //   @Query('state') state?: string,
+  // ): Promise<SurveyResponse[]> {
+  //   return this.EnumeratorFlowService.getAllSurveyResponses(state);
+  // }
 }

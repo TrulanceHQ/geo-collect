@@ -22,8 +22,8 @@ export class SurveyResponse {
   @Prop({ required: true })
   mediaUrl: string;
 
-  @Prop({ required: true })
-  startTime: string;
+  @Prop({ required: true }) // Remove default value
+  startTime: Date;
 
   @Prop({ default: Date.now })
   submittedAt: Date;
