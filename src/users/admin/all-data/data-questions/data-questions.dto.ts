@@ -8,6 +8,8 @@ import {
   ValidateIf,
   IsNotEmpty,
   ArrayNotEmpty,
+  IsBoolean,
+  IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { QuestionType } from './data-questions.schema';
@@ -28,6 +30,28 @@ class Option {
   nextSection?: number | null;
 }
 
+class LikertOptionDto {
+  // @ApiProperty({
+  //   example: 'Agree',
+  //   description: 'Likert scale label',
+  // })
+  // @IsString()
+  // label: string;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Likert scale value',
+  })
+  // @IsNumber()
+  // value: number;
+  @ApiProperty({
+    example: 'Agree or 1',
+    description: 'Likert scale option (can be text or number)',
+  })
+  @IsNotEmpty()
+  option: string | number;
+}
+
 class LikertQuestionDto {
   @ApiProperty({
     example: 'Rate your experience with our product',
@@ -37,6 +61,7 @@ class LikertQuestionDto {
   @IsNotEmpty()
   question: string;
 
+  //new
   @ApiProperty({
     example: [
       'Strongly Disagree',
@@ -49,8 +74,10 @@ class LikertQuestionDto {
   })
   @IsArray()
   @ArrayNotEmpty()
-  options: string[];
+  @IsString({ each: true })
+  options: string;
 }
+//new ends
 
 export class QuestionDto {
   @ApiProperty({
@@ -81,7 +108,21 @@ export class QuestionDto {
       o.type === QuestionType.SINGLE_CHOICE ||
       o.type === QuestionType.MULTIPLE_CHOICE,
   )
+
+  //new
+  @ValidateNested({ each: true })
+  @Type(() => Option)
   options?: Option[];
+
+  @ApiProperty({
+    example: false,
+    description:
+      'Enable an "Other" text field for additional responses in single-choice questions.',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  allowOther?: boolean;
 
   @ApiProperty({
     type: [LikertQuestionDto],
@@ -91,6 +132,7 @@ export class QuestionDto {
   @IsArray()
   @ArrayNotEmpty()
   @ValidateIf((o) => o.type === QuestionType.LIKERT_SCALE)
+  @ValidateNested({ each: true })
   @Type(() => LikertQuestionDto)
   likertQuestions?: LikertQuestionDto[];
 
@@ -110,24 +152,6 @@ export class QuestionDto {
       throw new Error('Non-Likert questions should not have likertQuestions.');
     }
   }
-
-  // @ValidateIf((o) => o.type === QuestionType.TEXT)
-  // validateTextQuestion() {
-  //   if (this.options || this.likertQuestions) {
-  //     throw new Error(
-  //       'Text questions should not have options or likertQuestions',
-  //     );
-  //   }
-  // }
-
-  // //
-
-  // @ValidateIf((o) => o.type !== QuestionType.LIKERT_SCALE)
-  // validateNonLikertQuestion() {
-  //   if (this.likertQuestions && this.likertQuestions.length > 0) {
-  //     throw new Error('Non-Likert questions should not have likertQuestions');
-  //   }
-  // }
 }
 
 export class SectionDto {

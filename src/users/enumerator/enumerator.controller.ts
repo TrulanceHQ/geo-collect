@@ -9,7 +9,6 @@ import {
   NotFoundException,
   Param,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -50,13 +49,14 @@ export class EnumeratorController {
   @ApiOperation({ summary: 'Submit survey responses' })
   async submitSurveyResponse(@Body() body: any, @Req() req) {
     const enumeratorId = req.user.sub as string;
-    const { surveyId, responses, location, mediaUrl } = body;
+    const { surveyId, responses, location, mediaUrl, startTime } = body;
     return this.EnumeratorFlowService.submitSurveyResponse(
       surveyId,
       responses,
       enumeratorId,
       location,
       mediaUrl,
+      startTime,
     );
   }
 
@@ -77,62 +77,39 @@ export class EnumeratorController {
     );
   }
 
-  //new
-
   // @Roles('fieldCoordinator')
-  // @Get('/responses/:fieldCoordinatorId')
+  // @Get('by-field-coordinator/:fieldCoordinatorId')
   // @ApiOperation({ summary: 'Get survey responses by field coordinator' })
   // @ApiResponse({
   //   status: 200,
-  //   description: 'Survey responses retrieved successfully',
+  //   description: 'Returns the survey responses by field coordinator',
   // })
-  // @ApiResponse({ status: 404, description: 'No survey responses found' })
-  // async getResponsesByFieldCoordinator(
+  // async getSurveyResponsesByFieldCoordinator(
   //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  // ): Promise<SurveyResponse[]> {
-  //   // (
-  //   //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  //   // )
-
-  //   return this.EnumeratorFlowService.getResponsesByFieldCoordinator(
+  // ) {
+  //   return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
   //     fieldCoordinatorId,
   //   );
   // }
 
-  // then fetch survey responses by enumerator IDs:
-  @Roles('fieldCoordinator')
-  @Get('by-field-coordinator/:fieldCoordinatorId')
-  @ApiOperation({ summary: 'Get survey responses by field coordinator' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns the survey responses by field coordinator',
-  })
-  async getSurveyResponsesByFieldCoordinator(
-    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  ) {
-    return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
-      fieldCoordinatorId,
-    );
-  }
-
   // @UseGuards(JwtAuthGuard)
-  @Roles('fieldCoordinator')
-  @Get('responses/count/:fieldCoordinatorId')
-  @ApiOperation({ summary: 'Get total responses count by field coordinator' })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Returns the total number of responses submitted by enumerators created by the specified field coordinator.',
-  })
-  async getResponsesCountByFieldCoordinator(
-    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  ): Promise<{ count: number; message: string }> {
-    return this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
-      fieldCoordinatorId,
-    );
-  }
+  // @Roles('fieldCoordinator')
+  // @Get('responses/count/:fieldCoordinatorId')
+  // @ApiOperation({ summary: 'Get total responses count by field coordinator' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description:
+  //     'Returns the total number of responses submitted by enumerators created by the specified field coordinator.',
+  // })
+  // async getResponsesCountByFieldCoordinator(
+  //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  // ): Promise<{ count: number; message: string }> {
+  //   return this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
+  //     fieldCoordinatorId,
+  //   );
+  // }
 
-  //fetch all data for admin
+  // //fetch all data for admin
   @Roles('admin')
   @Get('all-responses-by-admin')
   @ApiOperation({ summary: 'Get all responses' })
@@ -141,6 +118,15 @@ export class EnumeratorController {
     description: 'Returns the all responses.',
   })
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
-    return this.EnumeratorFlowService.getAllSurveyResponses();
+    return await this.EnumeratorFlowService.getAllSurveyResponses();
   }
+  // @Roles('admin')
+  // @Get('all-responses-by-admin')
+  // @ApiOperation({ summary: 'Get all responses' })
+  // @ApiResponse({ status: 200, description: 'Returns all responses.' })
+  // async getAllSurveyResponses(
+  //   @Query('state') state?: string,
+  // ): Promise<SurveyResponse[]> {
+  //   return this.EnumeratorFlowService.getAllSurveyResponses(state);
+  // }
 }

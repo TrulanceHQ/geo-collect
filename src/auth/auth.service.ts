@@ -22,6 +22,11 @@ import { UpdateUserDto } from './dto/updateuser.dto';
 import { generateStrongPassword } from 'src/utils/password.utils';
 import { v4 as uuidv4 } from 'uuid';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
+import {
+  SurveyResponse,
+  SurveyResponseDocument,
+} from 'src/users/enumerator/survey-response.schema';
+import mongoose from 'mongoose';
 export interface LoginResponse {
   accessToken: string;
   user: User;
@@ -30,6 +35,8 @@ export interface LoginResponse {
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(SurveyResponse.name)
+    private surveyResponseModel: Model<SurveyResponseDocument>,
     private cloudinaryService: CloudinaryService,
     private jwtService: JwtService,
     private emailUtil: EmailUtil,
@@ -68,7 +75,6 @@ export class AuthService {
 
   async createEnumeratorByFieldCoordinator(
     createUserDto: CreateUserDto,
-    // fieldCoordinatorId: string, // Accept fieldCoordinatorId here
   ): Promise<User> {
     const existingUser = await this.userModel
       .findOne({ emailAddress: createUserDto.emailAddress })
@@ -93,7 +99,7 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
       isVerified: false,
-      // fieldCoordinatorId, // Associate the fieldCoordinatorId to the new user
+      // fieldCoordinatorId: createUserDto.fieldCoordinatorId, // Note: ensure the DTO includes fieldCoordinatorId
     });
 
     await this.emailUtil.sendEmail(
@@ -116,6 +122,86 @@ export class AuthService {
       .countDocuments({ fieldCoordinatorId, role: 'enumerator' })
       .exec();
   }
+
+  async getEnumeratorsByFieldCoordinator(
+    fieldCoordinatorId: string,
+  ): Promise<User[]> {
+    return this.userModel
+      .find({ fieldCoordinatorId, role: 'enumerator' })
+      .exec();
+  }
+
+  // //get survey responses by field coord
+  // async getSurveyResponsesByEnumeratorId(
+  //   enumeratorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   return this.surveyResponseModel.find({ enumeratorId }).exec();
+  // }
+
+  // async getSurveyResponsesByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   const enumerators =
+  //     await this.getEnumeratorsByFieldCoordinator(fieldCoordinatorId);
+
+  //   const surveyResponses = await Promise.all(
+  //     enumerators.map(async (enumerator) => {
+  //       const enumeratorId = enumerator._id as string; // Ensure the type is string
+  //       return this.getSurveyResponsesByEnumeratorId(enumeratorId);
+  //     }),
+  //   );
+
+  //   return surveyResponses.flat();
+  // }
+
+  // In your survey service (or a related service)
+
+  // async getSurveyResponsesByFieldCoordinator(
+  //   fieldCoordinatorId: string
+  // ): Promise<SurveyResponse[]> {
+  //   // Step 1: Retrieve all enumerators created by the given field coordinator.
+  //   const enumerators = await this.userModel
+  //     .find({ fieldCoordinatorId, role: 'enumerator' })
+  //     .select('_id')
+  //     .exec();
+
+  //   // Map to get an array of enumerator IDs.
+  //   const enumeratorIds = enumerators.map((user) => user._id);
+
+  //   // If there are no enumerators, optionally return an empty array.
+  //   if (!enumeratorIds.length) {
+  //     return [];
+  //   }
+
+  //   // Step 2: Find survey responses that were collected by these enumerators.
+  //   return this.surveyResponseModel
+  //     .find({ enumeratorId: { $in: enumeratorIds } })
+  //     .exec();
+  // }
+
+  // async getSurveyResponsesByFieldCoordinator(
+  //   fieldCoordinatorId: string,
+  // ): Promise<any[]> {
+  //   return this.surveyResponseModel.aggregate([
+  //     {
+  //       $lookup: {
+  //         from: 'users', // Make sure this collection name matches your users collection.
+  //         localField: 'enumeratorId',
+  //         foreignField: '_id',
+  //         as: 'enumeratorDetails',
+  //       },
+  //     },
+  //     { $unwind: '$enumeratorDetails' },
+  //     {
+  //       $match: {
+  //         'enumeratorDetails.fieldCoordinatorId': new mongoose.Types.ObjectId(
+  //           fieldCoordinatorId,
+  //         ),
+  //       },
+  //     },
+  //     // Optionally, you can add more stages such as $project to shape your final output.
+  //   ]);
+  // }
 
   async login(
     emailAddress: string,

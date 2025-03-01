@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HttpException, HttpStatus } from '@nestjs/common';
@@ -7,11 +11,7 @@ import {
   DataEntryDocument,
   QuestionType,
 } from './data-questions.schema';
-import {
-  CreateDataEntryQuestionDto,
-  // QuestionDto,
-  // SectionDto,
-} from './data-questions.dto';
+import { CreateDataEntryQuestionDto } from './data-questions.dto';
 // import { v4 as uuidv4 } from 'uuid';
 
 // @Injectable()
@@ -63,7 +63,7 @@ export class DataEntryQuestionsService {
   //   return this.dataEntryModel.create(dataEntryDto);
   // }
 
-  // async processSectionns(
+  // async processSections(
   // async createQuestionSet(
   //   dataEntryDto: CreateDataEntryQuestionDto,
   // ): Promise<void> {
@@ -80,7 +80,54 @@ export class DataEntryQuestionsService {
   async createQuestionSet(
     dataEntryDto: CreateDataEntryQuestionDto,
   ): Promise<DataEntryQuestion> {
-    return this.dataEntryModel.create(dataEntryDto);
+    try {
+      dataEntryDto.sections = dataEntryDto.sections.map((section) => {
+        section.questions = section.questions.map((q) => {
+          if (
+            q.type === QuestionType.SINGLE_CHOICE ||
+            q.type === QuestionType.MULTIPLE_CHOICE
+          ) {
+            if (!q.options || q.options.length === 0) {
+              throw new HttpException(
+                'Single-choice and multiple-choice questions must have options',
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+          }
+
+          if (q.type === QuestionType.LIKERT_SCALE) {
+            if (!q.likertQuestions || q.likertQuestions.length === 0) {
+              throw new HttpException(
+                'Likert scale questions must have likertQuestions',
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+          }
+
+          // if (q.type === QuestionType.TEXT) {
+          //   if (q.options || q.likertQuestions) {
+          //     throw new HttpException(
+          //       'Text questions should not have options of likertQuestions',
+          //       HttpStatus.BAD_REQUEST,
+          //     );
+          //   }
+          // }
+
+          return q;
+        });
+        return section;
+      });
+
+      // Create a new document from the processed dataEntryDto
+      const createdQuestionSet = new this.dataEntryModel(dataEntryDto);
+
+      // Save the new document to the database
+      const savedQuestionSet = await createdQuestionSet.save();
+
+      return savedQuestionSet; // Return the saved document
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   //working below
