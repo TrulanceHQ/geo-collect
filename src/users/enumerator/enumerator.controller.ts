@@ -78,37 +78,37 @@ export class EnumeratorController {
     );
   }
 
-  @Roles('fieldCoordinator')
-  @Get('by-field-coordinator/:fieldCoordinatorId')
-  @ApiOperation({ summary: 'Get survey responses by field coordinator' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns the survey responses by field coordinator',
-  })
-  async getSurveyResponsesByFieldCoordinator(
-    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  ) {
-    return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
-      fieldCoordinatorId,
-    );
-  }
+  // @Roles('fieldCoordinator')
+  // @Get('by-field-coordinator/:fieldCoordinatorId')
+  // @ApiOperation({ summary: 'Get survey responses by field coordinator' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Returns the survey responses by field coordinator',
+  // })
+  // async getSurveyResponsesByFieldCoordinator(
+  //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  // ) {
+  //   return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
+  //     fieldCoordinatorId,
+  //   );
+  // }
 
   // @UseGuards(JwtAuthGuard)
-  @Roles('fieldCoordinator')
-  @Get('responses/count/:fieldCoordinatorId')
-  @ApiOperation({ summary: 'Get total responses count by field coordinator' })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Returns the total number of responses submitted by enumerators created by the specified field coordinator.',
-  })
-  async getResponsesCountByFieldCoordinator(
-    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
-  ): Promise<{ count: number; message: string }> {
-    return this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
-      fieldCoordinatorId,
-    );
-  }
+  // @Roles('fieldCoordinator')
+  // @Get('responses/count/:fieldCoordinatorId')
+  // @ApiOperation({ summary: 'Get total responses count by field coordinator' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description:
+  //     'Returns the total number of responses submitted by enumerators created by the specified field coordinator.',
+  // })
+  // async getResponsesCountByFieldCoordinator(
+  //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  // ): Promise<{ count: number; message: string }> {
+  //   return this.EnumeratorFlowService.getResponseCountByFieldCoordinator(
+  //     fieldCoordinatorId,
+  //   );
+  // }
 
   // //fetch all data for admin
   @Roles('admin')

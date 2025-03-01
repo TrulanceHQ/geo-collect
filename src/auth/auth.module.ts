@@ -11,6 +11,10 @@ import { RolesGuard } from 'src/utils/roles/roles.guard';
 import { LocalStrategy } from 'src/utils/localguard/local.strategy';
 import { EmailModule } from 'src/utils/email/email.module';
 import { JwtAuthGuard } from 'src/utils/JwtAuthGuard';
+import {
+  SurveyResponse,
+  SurveyResponseSchema,
+} from 'src/users/enumerator/survey-response.schema';
 
 @Module({
   imports: [
@@ -23,7 +27,10 @@ import { JwtAuthGuard } from 'src/utils/JwtAuthGuard';
       }),
       inject: [ConfigService],
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: SurveyResponse.name, schema: SurveyResponseSchema },
+    ]),
     EmailModule,
     CloudinaryModule,
   ],

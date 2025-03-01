@@ -33,7 +33,9 @@ import { UpdateUserDto } from './dto/updateuser.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 import { ChangePasswordDto } from './dto/changepassword.dto';
-import { UserRole } from './schema/user.schema';
+import { User, UserRole } from './schema/user.schema';
+import { SurveyResponse } from 'src/users/enumerator/survey-response.schema';
+import { EnumeratorFlowService } from 'src/users/enumerator/enumerator.service';
 // import { ResendVerificationCodeDto } from './dto/resendverificationcode.dto';
 
 @ApiTags('Auth')
@@ -41,6 +43,8 @@ import { UserRole } from './schema/user.schema';
 @Controller('api/v1')
 @UseGuards(RolesGuard)
 export class UsersController {
+  // constructor(private readonly authService: AuthService) {}
+
   constructor(private readonly authService: AuthService) {}
 
   @Roles('admin')
@@ -240,4 +244,36 @@ export class UsersController {
       fieldCoordinatorId,
     );
   }
+
+  // getallenumbyfieldcoord
+  // New API endpoint to get enumerators by field coordinator ID
+  @Roles('fieldCoordinator')
+  @Get('/enumerators/:fieldCoordinatorId')
+  async getEnumeratorsByFieldCoordinator(
+    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  ): Promise<User[]> {
+    return this.authService.getEnumeratorsByFieldCoordinator(
+      fieldCoordinatorId,
+    );
+  }
+
+  // @Roles('fieldCoordinator')
+  // @Get('/survey-responses/:fieldCoordinatorId')
+  // async getSurveyResponsesByFieldCoordinator(
+  //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   return this.authService.getSurveyResponsesByFieldCoordinator(
+  //     fieldCoordinatorId,
+  //   );
+  // }
+
+  // @Roles('fieldCoordinator')
+  // @Get('/survey-responses/:fieldCoordinatorId')
+  // async getSurveyResponsesByFieldCoordinator(
+  //   @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  // ): Promise<SurveyResponse[]> {
+  //   return this.authService.getSurveyResponsesByFieldCoordinator(
+  //     fieldCoordinatorId,
+  //   );
+  // }
 }
