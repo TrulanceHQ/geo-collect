@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsArray, IsNotEmpty } from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, IsDate } from 'class-validator';
 
 export class SurveyResponseDto {
   @ApiProperty({
@@ -47,4 +47,12 @@ export class SubmitSurveyResponseDto {
   @IsArray()
   @IsNotEmpty()
   responses: SurveyResponseDto[];
+
+  // @ApiProperty({
+  //   example: '2025-02-28T20:30:00Z',
+  //   description: 'Survey Start Time',
+  // })
+  // @IsDate()
+  // @IsNotEmpty()
+  // startTime: Date;
 }

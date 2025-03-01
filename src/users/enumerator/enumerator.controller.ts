@@ -50,13 +50,14 @@ export class EnumeratorController {
   @ApiOperation({ summary: 'Submit survey responses' })
   async submitSurveyResponse(@Body() body: any, @Req() req) {
     const enumeratorId = req.user.sub as string;
-    const { surveyId, responses, location, mediaUrl } = body;
+    const { surveyId, responses, location, mediaUrl, startTime } = body;
     return this.EnumeratorFlowService.submitSurveyResponse(
       surveyId,
       responses,
       enumeratorId,
       location,
       mediaUrl,
+      startTime,
     );
   }
 
@@ -109,7 +110,7 @@ export class EnumeratorController {
     );
   }
 
-  //fetch all data for admin
+  // //fetch all data for admin
   @Roles('admin')
   @Get('all-responses-by-admin')
   @ApiOperation({ summary: 'Get all responses' })
@@ -120,4 +121,13 @@ export class EnumeratorController {
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
     return this.EnumeratorFlowService.getAllSurveyResponses();
   }
+  // @Roles('admin')
+  // @Get('all-responses-by-admin')
+  // @ApiOperation({ summary: 'Get all responses' })
+  // @ApiResponse({ status: 200, description: 'Returns all responses.' })
+  // async getAllSurveyResponses(
+  //   @Query('state') state?: string,
+  // ): Promise<SurveyResponse[]> {
+  //   return this.EnumeratorFlowService.getAllSurveyResponses(state);
+  // }
 }
