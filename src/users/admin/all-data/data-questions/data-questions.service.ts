@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HttpException, HttpStatus } from '@nestjs/common';
@@ -7,11 +11,7 @@ import {
   DataEntryDocument,
   QuestionType,
 } from './data-questions.schema';
-import {
-  CreateDataEntryQuestionDto,
-  QuestionDto,
-  SectionDto,
-} from './data-questions.dto';
+import { CreateDataEntryQuestionDto } from './data-questions.dto';
 // import { v4 as uuidv4 } from 'uuid';
 
 // @Injectable()

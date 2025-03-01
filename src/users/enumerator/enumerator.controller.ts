@@ -9,7 +9,6 @@ import {
   NotFoundException,
   Param,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -119,7 +118,7 @@ export class EnumeratorController {
     description: 'Returns the all responses.',
   })
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
-    return this.EnumeratorFlowService.getAllSurveyResponses();
+    return await this.EnumeratorFlowService.getAllSurveyResponses();
   }
   // @Roles('admin')
   // @Get('all-responses-by-admin')

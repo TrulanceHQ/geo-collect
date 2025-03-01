@@ -15,6 +15,9 @@ export class EmailUtil {
       user: process.env.BREVO_USER,
       pass: process.env.BREVO_PASS,
     },
+    tls: {
+      rejectUnauthorized: false, // Allow insecure connections
+    },
   });
 
   async sendEmail(to: string, subject: string, template: string, context: any) {

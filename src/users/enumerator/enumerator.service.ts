@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -5,7 +8,7 @@ import {
   SurveyResponse,
   SurveyResponseDocument,
 } from './survey-response.schema';
-import { SubmitSurveyResponseDto } from './dto/survey-response.dto';
+// import { SubmitSurveyResponseDto } from './dto/survey-response.dto';
 import { User } from 'src/auth/schema/user.schema';
 import {
   DataEntryDocument,
@@ -207,6 +210,7 @@ export class EnumeratorFlowService {
   ): Promise<SurveyResponse[]> {
     return this.surveyResponseModel
       .find({ enumeratorId })
+      .select('surveyId responses location mediaUrl startTime submittedAt')
       .populate('surveyId', 'title')
       .exec();
   }
