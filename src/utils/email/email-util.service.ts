@@ -50,7 +50,7 @@ export class EmailUtil {
 
     try {
       const info = await this.transporter.sendMail({
-        from: `"Your App" <${process.env.BREVO_FROM}>`,
+        from: `"GeoTrak" <${process.env.BREVO_FROM}>`,
         to,
         subject,
         html: htmlTemplate,
