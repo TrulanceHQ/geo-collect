@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -120,13 +121,15 @@ export class EnumeratorController {
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
     return await this.EnumeratorFlowService.getAllSurveyResponses();
   }
-  // @Roles('admin')
-  // @Get('all-responses-by-admin')
-  // @ApiOperation({ summary: 'Get all responses' })
-  // @ApiResponse({ status: 200, description: 'Returns all responses.' })
-  // async getAllSurveyResponses(
-  //   @Query('state') state?: string,
-  // ): Promise<SurveyResponse[]> {
-  //   return this.EnumeratorFlowService.getAllSurveyResponses(state);
-  // }
+
+  //field coord
+  @Roles('fieldCoordinator')
+  @Get('survey-responses/:fieldCoordinatorId')
+  async getSurveyResponsesByFieldCoordinator(
+    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  ): Promise<SurveyResponse[]> {
+    return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
+      fieldCoordinatorId,
+    );
+  }
 }
