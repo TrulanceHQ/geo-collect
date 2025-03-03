@@ -25,7 +25,7 @@ import { User, UserSchema } from 'src/auth/schema/user.schema';
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET, // Ensure this matches the secret used to sign the JWT
-      signOptions: { expiresIn: '2h' },
+      signOptions: { expiresIn: '30d' },
     }),
     AuthModule,
   ],

@@ -120,13 +120,14 @@ export class EnumeratorController {
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
     return await this.EnumeratorFlowService.getAllSurveyResponses();
   }
-  // @Roles('admin')
-  // @Get('all-responses-by-admin')
-  // @ApiOperation({ summary: 'Get all responses' })
-  // @ApiResponse({ status: 200, description: 'Returns all responses.' })
-  // async getAllSurveyResponses(
-  //   @Query('state') state?: string,
-  // ): Promise<SurveyResponse[]> {
-  //   return this.EnumeratorFlowService.getAllSurveyResponses(state);
-  // }
+  //responses for field coord
+  @Roles('fieldCoordinator')
+  @Get('survey-responses/:fieldCoordinatorId')
+  async getSurveyResponsesByFieldCoordinator(
+    @Param('fieldCoordinatorId') fieldCoordinatorId: string,
+  ): Promise<SurveyResponse[]> {
+    return this.EnumeratorFlowService.getSurveyResponsesByFieldCoordinator(
+      fieldCoordinatorId,
+    );
+  }
 }
