@@ -18,13 +18,6 @@ export class SurveyResponse {
     answer: string;
   }>;
 
-  // @Prop({ required: true })
-  // responses: Array<{
-  //   questionId: Types.ObjectId;
-  //   question: string;
-  //   answer: string;
-  // }>;
-
   @Prop({ required: true })
   location: string;
 
