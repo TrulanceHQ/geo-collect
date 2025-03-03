@@ -27,6 +27,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   readonly creatorRole: UserRole;
 
+  // @ApiProperty({ example: 'user123', description: 'Enumerator ID' })
+  // @IsString()
+  // @IsNotEmpty()
+  // fieldCoordinatorId: string;
+
   @ApiProperty({ description: 'Selected state of the user' })
   @IsNotEmpty()
   readonly selectedState: string; // Add this field
@@ -40,4 +45,8 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   readonly fieldCoordinatorId: string; // Add this field
+
+  // @ApiProperty({ description: 'fieldCoordinator id' })
+  // @IsNotEmpty()
+  // readonly fieldCoordinatorId?: string; // Add this field if it's part of the creation process
 }

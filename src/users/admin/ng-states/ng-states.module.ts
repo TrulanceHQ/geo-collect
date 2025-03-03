@@ -14,7 +14,7 @@ import { NgStates, NgStatesSchema } from './ng-states.schema';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET', 'default_secret'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '30d' },
       }),
       inject: [ConfigService],
     }),

@@ -5,7 +5,6 @@ import { DataEntryQuestionsService } from './../admin/all-data/data-questions/da
 import {
   DataEntryQuestion,
   DataEntryQuestionSchema,
-  Question,
   // Question,
 } from './../admin/all-data/data-questions/data-questions.schema';
 import { EnumeratorFlowService } from './enumerator.service';
@@ -26,7 +25,7 @@ import { User, UserSchema } from 'src/auth/schema/user.schema';
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET, // Ensure this matches the secret used to sign the JWT
-      signOptions: { expiresIn: '60m' },
+      signOptions: { expiresIn: '30d' },
     }),
     AuthModule,
   ],

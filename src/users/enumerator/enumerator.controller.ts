@@ -121,8 +121,7 @@ export class EnumeratorController {
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
     return await this.EnumeratorFlowService.getAllSurveyResponses();
   }
-
-  //field coord
+  //responses for field coord
   @Roles('fieldCoordinator')
   @Get('survey-responses/:fieldCoordinatorId')
   async getSurveyResponsesByFieldCoordinator(
