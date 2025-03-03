@@ -63,7 +63,6 @@ export class EnumeratorFlowService {
 
     const enrichedResponses = responses.map((entry) => {
       let question = '';
-      let subquestion = ''; // New field for likert subquestion
       let processedAnswer = entry.answer;
 
       // Check if the questionId is a composite (e.g., "baseId-index")
@@ -72,6 +71,7 @@ export class EnumeratorFlowService {
       if (entry.questionId.includes('-')) {
         const parts = entry.questionId.split('-');
         baseId = parts[0];
+        // parse the likert index
         likertIndex = Number(parts[1]);
         if (isNaN(likertIndex)) {
           this.logger.warn(
@@ -95,15 +95,14 @@ export class EnumeratorFlowService {
             matchedQuestion.likertQuestions &&
             matchedQuestion.likertQuestions.length > likertIndex
           ) {
-            // Save the base question and the subquestion separately.
-            question = matchedQuestion.question;
-            subquestion = matchedQuestion.likertQuestions[likertIndex].question;
+            const likertQuestion = matchedQuestion.likertQuestions[likertIndex];
+            question = `${matchedQuestion.question} - ${likertQuestion.question}`;
             processedAnswer = entry.answer;
             this.logger.debug(
-              `Likert question matched: baseId ${baseId}, index ${likertIndex}, base question: ${question}, subquestion: ${subquestion}`,
+              `Likert question matched: baseId ${baseId}, index ${likertIndex}, enriched question: ${question}`,
             );
           } else {
-            // For non-likert or if no valid index is provided, use the base question text only
+            // For non-likert or if no valid index is provided, use the base question text
             question = matchedQuestion.question;
             this.logger.debug(
               `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
@@ -122,7 +121,6 @@ export class EnumeratorFlowService {
       return {
         questionId: entry.questionId,
         question,
-        subquestion, // new field will be empty for non-likert responses
         answer: processedAnswer,
       };
     });
