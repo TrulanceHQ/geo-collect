@@ -13,6 +13,8 @@ export class SurveyResponse {
   responses: Array<{
     questionId: Types.ObjectId;
     question: string;
+    //new
+    subquestion: 'Rate';
     answer: string;
   }>;
 
