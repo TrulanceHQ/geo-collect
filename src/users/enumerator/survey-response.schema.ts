@@ -9,21 +9,21 @@ export class SurveyResponse {
   @Prop({ type: Types.ObjectId, required: true, ref: 'User' }) // Tracks who submitted
   enumeratorId: Types.ObjectId;
 
-  // @Prop({ required: true })
-  // responses: Array<{
-  //   questionId: Types.ObjectId;
-  //   question: string;
-  //   //new
-  //   subquestion: 'Rate';
-  //   answer: string;
-  // }>;
-
   @Prop({ required: true })
   responses: Array<{
     questionId: Types.ObjectId;
     question: string;
+    //new
+    subquestion: 'Rate';
     answer: string;
   }>;
+
+  // @Prop({ required: true })
+  // responses: Array<{
+  //   questionId: Types.ObjectId;
+  //   question: string;
+  //   answer: string;
+  // }>;
 
   @Prop({ required: true })
   location: string;
