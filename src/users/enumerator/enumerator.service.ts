@@ -52,9 +52,9 @@ export class EnumeratorFlowService {
         baseId = parts[0];
         likertIndex = Number(parts[1]);
         if (isNaN(likertIndex)) {
-          this.logger.warn(
-            `Invalid likert index in response questionId: ${entry.questionId}`,
-          );
+          // this.logger.warn(
+          //   `Invalid likert index in response questionId: ${entry.questionId}`,
+          // );
           likertIndex = null;
         }
       }
@@ -77,25 +77,25 @@ export class EnumeratorFlowService {
             question = matchedQuestion.question;
             subquestion = matchedQuestion.likertQuestions[likertIndex].question;
             processedAnswer = entry.answer;
-            this.logger.debug(
-              `Likert question matched: baseId ${baseId}, index ${likertIndex}, base question: ${question}, subquestion: ${subquestion}`,
-            );
+            // this.logger.debug(
+            //   `Likert question matched: baseId ${baseId}, index ${likertIndex}, base question: ${question}, subquestion: ${subquestion}`,
+            // );
           } else {
             // For non-likert or if no valid index is provided, use the base question text only
             question = matchedQuestion.question;
-            this.logger.debug(
-              `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
-            );
+            // this.logger.debug(
+            //   `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
+            // );
           }
           break;
         }
       }
 
-      if (!question) {
-        this.logger.warn(
-          `No matching question found for: ${entry.questionId} (baseId: ${baseId})`,
-        );
-      }
+      // if (!question) {
+      //   this.logger.warn(
+      //     `No matching question found for: ${entry.questionId} (baseId: ${baseId})`,
+      //   );
+      // }
 
       return {
         questionId: entry.questionId,

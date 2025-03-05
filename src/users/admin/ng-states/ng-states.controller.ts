@@ -34,14 +34,6 @@ export class NgStatesController {
   @ApiOperation({ summary: 'Create a new state (Admin only)' })
   @ApiResponse({ status: 201, description: 'State created successfully' })
   @ApiResponse({ status: 409, description: 'Conflict: State already exists' })
-  // async createState(
-  //   @Body() createStateDto: CreateStateDto,
-  //   @Request() req: any,
-  // ) {
-  //   const adminId = req.user.userId; // Extract the admin ID from the authenticated user
-  //   console.log('Received request body:', createStateDto);
-  //   return this.statesService.createState(createStateDto, adminId);
-  // }
   async createState(@Body() createStateDto: CreateStateDto) {
     return this.statesService.createState(createStateDto);
   }
