@@ -143,24 +143,26 @@ export class EnumeratorFlowService {
   //fetch all data for admin
 
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
-    return (
-      this.surveyResponseModel
-        .find()
-        .populate({
-          path: 'surveyId',
-          select: 'title subtitle',
-        })
-        .populate({
-          path: 'enumeratorId',
-          select: { firstName: 1, lastName: 1, fieldCoordinatorId: 1 }, // Ensure fieldCoordinatorId is selected
-          populate: {
-            path: 'fieldCoordinatorId',
-            select: { firstName: 1, lastName: 1, selectedState: 1 }, // Populate the related user (field coordinator) with these fields
-          },
-        })
-        // .populate('responses.questionId', 'question')
-        .exec()
-    );
+    return this.surveyResponseModel
+      .find()
+      .populate({
+        path: 'surveyId',
+        select: 'title subtitle',
+      })
+      .populate({
+        path: 'enumeratorId',
+        select: { firstName: 1, lastName: 1, fieldCoordinatorId: 1 }, // Ensure fieldCoordinatorId is selected
+        populate: {
+          path: 'fieldCoordinatorId',
+          select: { firstName: 1, lastName: 1, selectedState: 1 }, // Populate the related user (field coordinator) with these fields
+        },
+      })
+
+      .exec();
+  }
+  //survey count by admin
+  async getSurveyResponseCount(): Promise<number> {
+    return await this.surveyResponseModel.countDocuments();
   }
 
   //for field coord
