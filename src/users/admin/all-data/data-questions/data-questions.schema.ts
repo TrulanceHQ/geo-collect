@@ -264,28 +264,13 @@ export class Question {
   })
   options?: Option[];
 
-  //new
-  // @Prop({
-  //   type: [{ label: String, value: Number }],
-  //   default: undefined,
-  // })
-  // likertOptions?: LikertOption[];
-  //new ends
-
-  // New property to toggle the "Other" text field
   @Prop({ default: false })
   allowOther?: boolean;
-
-  // @Prop({ type: [{ question: String, options: [String] }], default: undefined })
-  // likertQuestions?: { question: string; options: string[] }[];
-  // @Prop({ type: [{ question: String, options: [String] }], default: undefined })
-  // likertQuestions?: { question: string; options: LikertOption[] }[];
 
   @Prop({
     type: [{ question: String, options: [String] }],
     default: undefined,
   })
-  // likertQuestions?: { question: string; options: LikertOption[] }[];
 
   //above
   likertQuestions?: { question: string; options: string[] }[];

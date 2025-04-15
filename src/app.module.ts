@@ -13,6 +13,7 @@ import { developmentConfig, productionConfig } from './config';
 import { AuthModule } from './auth/auth.module';
 import { NgStatesModule } from './users/admin/ng-states/ng-states.module';
 import { DataEntryQuestionModule } from './users/admin/all-data/data-questions/data-questions.module';
+import { SurveyModule } from './users/admin/all-data/survey-aggregation/survey-aggregation.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 console.log(process.env.DEVELOPMENT_MONGODB_CONNECTION_URL);
@@ -76,6 +77,7 @@ import { EnumeratorModule } from './users/enumerator/enumerator.module';
     NgStatesModule,
     DataEntryQuestionModule,
     EnumeratorModule,
+    SurveyModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailUtil],

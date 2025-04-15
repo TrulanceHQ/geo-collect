@@ -121,6 +121,21 @@ export class EnumeratorController {
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
     return await this.EnumeratorFlowService.getAllSurveyResponses();
   }
+
+  //survey count by admin
+
+  @Roles('admin')
+  @Get('survey-response-count')
+  @ApiOperation({ summary: 'Get survey response count' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the total count of survey responses.',
+  })
+  async getSurveyResponseCount(): Promise<{ count: number }> {
+    const count = await this.EnumeratorFlowService.getSurveyResponseCount();
+    return { count };
+  }
+
   //responses for field coord
   @Roles('fieldCoordinator')
   @Get('survey-responses/:fieldCoordinatorId')

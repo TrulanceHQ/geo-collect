@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -27,394 +24,6 @@ export class EnumeratorFlowService {
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  // async submitSurveyResponse(
-  //   surveyId: string,
-  //   responses: SubmitSurveyResponseDto['responses'],
-  //   enumeratorId: string,
-  //   location: SubmitSurveyResponseDto['location'],
-  //   mediaUrl: SubmitSurveyResponseDto['mediaUrl'],
-  // ): Promise<SurveyResponse> {
-  //   const newResponse = new this.surveyResponseModel({
-  //     surveyId: new Types.ObjectId(surveyId),
-  //     enumeratorId,
-  //     responses,
-  //     location,
-  //     mediaUrl,
-  //   });
-
-  //   return newResponse.save();
-  // }
-
-  //new
-  // async submitSurveyResponse(
-  //   surveyId: string,
-  //   responses: Array<{ questionId: string; answer: any }>,
-  //   enumeratorId: string,
-  //   location: string,
-  //   mediaUrl: string,
-  //   startTime: Date,
-  // ): Promise<SurveyResponse> {
-  //   const surveyDefinition = await this.dataEntryQuestionModel
-  //     .findById(surveyId)
-  //     .lean();
-  //   if (!surveyDefinition || !surveyDefinition.sections) {
-  //     throw new Error('Survey definition not found');
-  //   }
-
-  //   // Enrich responses with question text if needed
-  //   const enrichedResponses = responses.map((entry) => {
-  //     let question = '';
-  //     let processedAnswer = entry.answer; // default for non-likert responses
-
-  //     // Loop through each section and their questions to find the corresponding question.
-  //     for (const section of surveyDefinition.sections) {
-  //       const matchedQuestion = section.questions.find(
-  //         (q: any) => String(q._id) === String(entry.questionId),
-  //       );
-
-  //       if (matchedQuestion) {
-  //         question = matchedQuestion.question; // 'question' is the text from your schema
-
-  //         // Handle likert-scale questions specifically
-  //         if (
-  //           matchedQuestion.type === 'likert-scale' &&
-  //           matchedQuestion.likertQuestions
-  //         ) {
-  //           const subQuestion = matchedQuestion.likertQuestions.find(
-  //             (likertQ: any, index: number) =>
-  //               String(`${entry.questionId}-${index}`) ===
-  //               String(entry.questionId),
-  //           );
-  //           if (subQuestion) {
-  //             question = `${matchedQuestion.question} - ${subQuestion.question}`;
-  //             processedAnswer = entry.answer;
-  //           }
-  //         }
-
-  //         break;
-  //       }
-  //     }
-
-  //     // Logging for debugging: make sure both fields are correctly captured.
-  //     this.logger.debug(
-  //       `Enriched entry: questionId: ${entry.questionId}, question: ${question}, response: ${processedAnswer}`,
-  //     );
-
-  //     return {
-  //       questionId: entry.questionId,
-  //       question: question,
-  //       answer: processedAnswer,
-  //     };
-  //   });
-
-  //   // Convert enumeratorId to ObjectId
-  //   const enumeratorObjectId = new Types.ObjectId(enumeratorId);
-
-  //   // Create and save the new SurveyResponse document
-  //   const surveyResponse = new this.surveyResponseModel({
-  //     surveyId,
-  //     // enumeratorId,
-  //     enumeratorId: enumeratorObjectId,
-  //     responses: enrichedResponses,
-  //     location,
-  //     mediaUrl,
-  //     startTime, // Save startTime as part of the response
-  //   });
-
-  //   await surveyResponse.save();
-  //   return surveyResponse;
-  // }
-
-  // async submitSurveyResponse(
-  //   surveyId: string,
-  //   responses: Array<{ questionId: string; answer: any }>,
-  //   enumeratorId: string,
-  //   location: string,
-  //   mediaUrl: string,
-  //   startTime: Date,
-  // ): Promise<SurveyResponse> {
-  //   const surveyDefinition = await this.dataEntryQuestionModel
-  //     .findById(surveyId)
-  //     .lean();
-  //   if (!surveyDefinition || !surveyDefinition.sections) {
-  //     throw new Error('Survey definition not found');
-  //   }
-
-  //   const enrichedResponses = responses.map((entry) => {
-  //     let question = '';
-  //     let subquestion = ''; // New field for likert subquestion
-  //     let processedAnswer = entry.answer;
-
-  //     // Check if the questionId is a composite (e.g., "baseId-index")
-  //     let baseId: string = entry.questionId;
-  //     let likertIndex: number | null = null;
-  //     if (entry.questionId.includes('-')) {
-  //       const parts = entry.questionId.split('-');
-  //       baseId = parts[0];
-  //       likertIndex = Number(parts[1]);
-  //       if (isNaN(likertIndex)) {
-  //         this.logger.warn(
-  //           `Invalid likert index in response questionId: ${entry.questionId}`,
-  //         );
-  //         likertIndex = null;
-  //       }
-  //     }
-
-  //     // Loop through each section and their questions to find the corresponding question.
-  //     for (const section of surveyDefinition.sections) {
-  //       const matchedQuestion = section.questions.find(
-  //         (q: any) => String(q._id) === String(baseId),
-  //       );
-
-  //       if (matchedQuestion) {
-  //         // Handle likert-scale questions if a composite id was passed
-  //         if (
-  //           matchedQuestion.type === 'likert-scale' &&
-  //           likertIndex !== null &&
-  //           matchedQuestion.likertQuestions &&
-  //           matchedQuestion.likertQuestions.length > likertIndex
-  //         ) {
-  //           // Save the base question and the subquestion separately.
-  //           question = matchedQuestion.question;
-  //           subquestion = matchedQuestion.likertQuestions[likertIndex].question;
-  //           processedAnswer = entry.answer;
-  //           this.logger.debug(
-  //             `Likert question matched: baseId ${baseId}, index ${likertIndex}, base question: ${question}, subquestion: ${subquestion}`,
-  //           );
-  //         } else {
-  //           // For non-likert or if no valid index is provided, use the base question text only
-  //           question = matchedQuestion.question;
-  //           this.logger.debug(
-  //             `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
-  //           );
-  //         }
-  //         break;
-  //       }
-  //     }
-
-  //     if (!question) {
-  //       this.logger.warn(
-  //         `No matching question found for: ${entry.questionId} (baseId: ${baseId})`,
-  //       );
-  //     }
-
-  //     return {
-  //       questionId: entry.questionId,
-  //       question,
-  //       subquestion, // new field will be empty for non-likert responses
-  //       answer: processedAnswer,
-  //     };
-  //   });
-
-  //   // Convert enumeratorId to ObjectId
-  //   const enumeratorObjectId = new Types.ObjectId(enumeratorId);
-
-  //   // Create and save the new SurveyResponse document
-  //   const surveyResponse = new this.surveyResponseModel({
-  //     surveyId,
-  //     enumeratorId: enumeratorObjectId,
-  //     responses: enrichedResponses,
-  //     location,
-  //     mediaUrl,
-  //     startTime,
-  //   });
-
-  //   await surveyResponse.save();
-  //   return surveyResponse;
-  // }
-
-  // async submitSurveyResponse(
-  //   surveyId: string,
-  //   responses: Array<{ questionId: string; answer: any }>,
-  //   enumeratorId: string,
-  //   location: string,
-  //   mediaUrl: string,
-  //   startTime: Date,
-  // ): Promise<SurveyResponse> {
-  //   const surveyDefinition = await this.dataEntryQuestionModel
-  //     .findById(surveyId)
-  //     .lean();
-  //   if (!surveyDefinition || !surveyDefinition.sections) {
-  //     throw new Error('Survey definition not found');
-  //   }
-
-  //   const enrichedResponses = responses.map((entry) => {
-  //     let question = '';
-  //     let processedAnswer = entry.answer;
-
-  //     // Check if the questionId is a composite (e.g., "baseId-index")
-  //     let baseId: string = entry.questionId;
-  //     let likertIndex: number | null = null;
-  //     if (entry.questionId.includes('-')) {
-  //       const parts = entry.questionId.split('-');
-  //       baseId = parts[0];
-  //       // parse the likert index
-  //       likertIndex = Number(parts[1]);
-  //       if (isNaN(likertIndex)) {
-  //         this.logger.warn(
-  //           `Invalid likert index in response questionId: ${entry.questionId}`,
-  //         );
-  //         likertIndex = null;
-  //       }
-  //     }
-
-  //     // Loop through each section and their questions to find the corresponding question.
-  //     for (const section of surveyDefinition.sections) {
-  //       const matchedQuestion = section.questions.find(
-  //         (q: any) => String(q._id) === String(baseId),
-  //       );
-
-  //       if (matchedQuestion) {
-  //         // Handle likert-scale questions if a composite id was passed
-  //         if (
-  //           matchedQuestion.type === 'likert-scale' &&
-  //           likertIndex !== null &&
-  //           matchedQuestion.likertQuestions &&
-  //           matchedQuestion.likertQuestions.length > likertIndex
-  //         ) {
-  //           const likertQuestion = matchedQuestion.likertQuestions[likertIndex];
-  //           question = `${matchedQuestion.question} - ${likertQuestion.question}`;
-  //           processedAnswer = entry.answer;
-  //           this.logger.debug(
-  //             `Likert question matched: baseId ${baseId}, index ${likertIndex}, enriched question: ${question}`,
-  //           );
-  //         } else {
-  //           // For non-likert or if no valid index is provided, use the base question text
-  //           question = matchedQuestion.question;
-  //           this.logger.debug(
-  //             `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
-  //           );
-  //         }
-  //         break;
-  //       }
-  //     }
-
-  //     if (!question) {
-  //       this.logger.warn(
-  //         `No matching question found for: ${entry.questionId} (baseId: ${baseId})`,
-  //       );
-  //     }
-
-  //     return {
-  //       questionId: entry.questionId,
-  //       question,
-  //       answer: processedAnswer,
-  //     };
-  //   });
-
-  //   // Convert enumeratorId to ObjectId
-  //   const enumeratorObjectId = new Types.ObjectId(enumeratorId);
-
-  //   // Create and save the new SurveyResponse document
-  //   const surveyResponse = new this.surveyResponseModel({
-  //     surveyId,
-  //     enumeratorId: enumeratorObjectId,
-  //     responses: enrichedResponses,
-  //     location,
-  //     mediaUrl,
-  //     startTime,
-  //   });
-
-  //   await surveyResponse.save();
-  //   return surveyResponse;
-  // }
-
-  // async submitSurveyResponse(
-  //   surveyId: string,
-  //   responses: Array<{ questionId: string; answer: any }>,
-  //   enumeratorId: string,
-  //   location: string,
-  //   mediaUrl: string,
-  //   startTime: Date,
-  // ): Promise<SurveyResponse> {
-  //   const surveyDefinition = await this.dataEntryQuestionModel
-  //     .findById(surveyId)
-  //     .lean();
-  //   if (!surveyDefinition || !surveyDefinition.sections) {
-  //     throw new Error('Survey definition not found');
-  //   }
-
-  //   const enrichedResponses = responses.map((entry) => {
-  //     let question = '';
-  //     let processedAnswer = entry.answer;
-
-  //     // Check if the questionId is a composite (e.g., "baseId-index")
-  //     let baseId: string = entry.questionId;
-  //     let likertIndex: number | null = null;
-  //     if (entry.questionId.includes('-')) {
-  //       const parts = entry.questionId.split('-');
-  //       baseId = parts[0];
-  //       // parse the likert index
-  //       likertIndex = Number(parts[1]);
-  //       if (isNaN(likertIndex)) {
-  //         this.logger.warn(
-  //           `Invalid likert index in response questionId: ${entry.questionId}`,
-  //         );
-  //         likertIndex = null;
-  //       }
-  //     }
-
-  //     // Loop through each section and their questions to find the corresponding question.
-  //     for (const section of surveyDefinition.sections) {
-  //       const matchedQuestion = section.questions.find(
-  //         (q: any) => String(q._id) === String(baseId),
-  //       );
-
-  //       if (matchedQuestion) {
-  //         // Handle likert-scale questions if a composite id was passed
-  //         if (
-  //           matchedQuestion.type === 'likert-scale' &&
-  //           likertIndex !== null &&
-  //           matchedQuestion.likertQuestions &&
-  //           matchedQuestion.likertQuestions.length > likertIndex
-  //         ) {
-  //           const likertQuestion = matchedQuestion.likertQuestions[likertIndex];
-  //           question = `${matchedQuestion.question} - ${likertQuestion.question}`;
-  //           processedAnswer = entry.answer;
-  //           this.logger.debug(
-  //             `Likert question matched: baseId ${baseId}, index ${likertIndex}, enriched question: ${question}`,
-  //           );
-  //         } else {
-  //           // For non-likert or if no valid index is provided, use the base question text
-  //           question = matchedQuestion.question;
-  //           this.logger.debug(
-  //             `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
-  //           );
-  //         }
-  //         break;
-  //       }
-  //     }
-
-  //     if (!question) {
-  //       this.logger.warn(
-  //         `No matching question found for: ${entry.questionId} (baseId: ${baseId})`,
-  //       );
-  //     }
-
-  //     return {
-  //       questionId: entry.questionId,
-  //       question,
-  //       answer: processedAnswer,
-  //     };
-  //   });
-
-  //   // Convert enumeratorId to ObjectId
-  //   const enumeratorObjectId = new Types.ObjectId(enumeratorId);
-
-  //   // Create and save the new SurveyResponse document
-  //   const surveyResponse = new this.surveyResponseModel({
-  //     surveyId,
-  //     enumeratorId: enumeratorObjectId,
-  //     responses: enrichedResponses,
-  //     location,
-  //     mediaUrl,
-  //     startTime,
-  //   });
-
-  //   await surveyResponse.save();
-  //   return surveyResponse;
-  // }
-
   async submitSurveyResponse(
     surveyId: string,
     responses: Array<{ questionId: string; answer: any }>,
@@ -432,6 +41,7 @@ export class EnumeratorFlowService {
 
     const enrichedResponses = responses.map((entry) => {
       let question = '';
+      let subquestion = ''; // New field for likert subquestion
       let processedAnswer = entry.answer;
 
       // Check if the questionId is a composite (e.g., "baseId-index")
@@ -440,12 +50,11 @@ export class EnumeratorFlowService {
       if (entry.questionId.includes('-')) {
         const parts = entry.questionId.split('-');
         baseId = parts[0];
-        // parse the likert index
         likertIndex = Number(parts[1]);
         if (isNaN(likertIndex)) {
-          this.logger.warn(
-            `Invalid likert index in response questionId: ${entry.questionId}`,
-          );
+          // this.logger.warn(
+          //   `Invalid likert index in response questionId: ${entry.questionId}`,
+          // );
           likertIndex = null;
         }
       }
@@ -464,32 +73,34 @@ export class EnumeratorFlowService {
             matchedQuestion.likertQuestions &&
             matchedQuestion.likertQuestions.length > likertIndex
           ) {
-            const likertQuestion = matchedQuestion.likertQuestions[likertIndex];
-            question = `${matchedQuestion.question} - ${likertQuestion.question}`;
-            processedAnswer = entry.answer;
-            this.logger.debug(
-              `Likert question matched: baseId ${baseId}, index ${likertIndex}, enriched question: ${question}`,
-            );
-          } else {
-            // For non-likert or if no valid index is provided, use the base question text
+            // Save the base question and the subquestion separately.
             question = matchedQuestion.question;
-            this.logger.debug(
-              `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
-            );
+            subquestion = matchedQuestion.likertQuestions[likertIndex].question;
+            processedAnswer = entry.answer;
+            // this.logger.debug(
+            //   `Likert question matched: baseId ${baseId}, index ${likertIndex}, base question: ${question}, subquestion: ${subquestion}`,
+            // );
+          } else {
+            // For non-likert or if no valid index is provided, use the base question text only
+            question = matchedQuestion.question;
+            // this.logger.debug(
+            //   `Standard question matched: baseId ${baseId}, enriched question: ${question}`,
+            // );
           }
           break;
         }
       }
 
-      if (!question) {
-        this.logger.warn(
-          `No matching question found for: ${entry.questionId} (baseId: ${baseId})`,
-        );
-      }
+      // if (!question) {
+      //   this.logger.warn(
+      //     `No matching question found for: ${entry.questionId} (baseId: ${baseId})`,
+      //   );
+      // }
 
       return {
         questionId: entry.questionId,
         question,
+        subquestion, // new field will be empty for non-likert responses
         answer: processedAnswer,
       };
     });
@@ -521,8 +132,9 @@ export class EnumeratorFlowService {
   async getSurveyResponsesByEnumerator(
     enumeratorId: string,
   ): Promise<SurveyResponse[]> {
+    const enumeratorObjectId = new Types.ObjectId(enumeratorId); // Ensure enumeratorId is of type ObjectId
     return this.surveyResponseModel
-      .find({ enumeratorId })
+      .find({ enumeratorId: enumeratorObjectId })
       .select('surveyId responses location mediaUrl startTime submittedAt')
       .populate('surveyId', 'title')
       .exec();
@@ -531,28 +143,26 @@ export class EnumeratorFlowService {
   //fetch all data for admin
 
   async getAllSurveyResponses(): Promise<SurveyResponse[]> {
-    return (
-      this.surveyResponseModel
-        .find()
-        .populate({
-          path: 'surveyId',
-          select: 'title subtitle',
-        })
-        .populate({
-          path: 'enumeratorId',
-          select: { firstName: 1, lastName: 1, fieldCoordinatorId: 1 }, // Ensure fieldCoordinatorId is selected
-          populate: {
-            path: 'fieldCoordinatorId',
-            select: { firstName: 1, lastName: 1, selectedState: 1 }, // Populate the related user (field coordinator) with these fields
-          },
-        })
-        // .populate('responses.questionId', 'question')
-        .populate({
-          path: 'responses.questionId',
-          select: 'question',
-        })
-        .exec()
-    );
+    return this.surveyResponseModel
+      .find()
+      .populate({
+        path: 'surveyId',
+        select: 'title subtitle',
+      })
+      .populate({
+        path: 'enumeratorId',
+        select: { firstName: 1, lastName: 1, fieldCoordinatorId: 1 },
+        populate: {
+          path: 'fieldCoordinatorId',
+          select: { firstName: 1, lastName: 1, selectedState: 1 },
+        },
+      })
+
+      .exec();
+  }
+  //survey count by admin
+  async getSurveyResponseCount(): Promise<number> {
+    return await this.surveyResponseModel.countDocuments();
   }
 
   //for field coord
@@ -566,7 +176,7 @@ export class EnumeratorFlowService {
       .exec();
 
     // Log the enumerators fetched
-    console.log('Enumerators:', enumerators);
+    // console.log('Enumerators:', enumerators);
 
     if (enumerators.length === 0) {
       // No enumerators found for this field coordinator
@@ -593,7 +203,7 @@ export class EnumeratorFlowService {
       .exec();
 
     // Log the survey responses fetched
-    console.log('Survey Responses:', surveyResponses);
+    // console.log('Survey Responses:', surveyResponses);
 
     return surveyResponses;
   }
