@@ -65,7 +65,7 @@ export class EmailUtil {
             <strong>${geotrakSupportText}</strong>
           </a>.
         </p>
-        <p>Best Regards,</p>
+        <p>Best Regards</p>
         <p>Geotrak</p>    
       `;
     }
