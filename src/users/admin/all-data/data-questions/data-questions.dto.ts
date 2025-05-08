@@ -31,13 +31,6 @@ class Option {
 }
 
 class LikertOptionDto {
-  // @ApiProperty({
-  //   example: 'Agree',
-  //   description: 'Likert scale label',
-  // })
-  // @IsString()
-  // label: string;
-
   @ApiProperty({
     example: 1,
     description: 'Likert scale value',

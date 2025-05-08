@@ -32,7 +32,7 @@ export class EmailUtil {
         <p>Please log in and change your password immediately.</p>
         <br>
         <p>Best Regards,</p>
-        <p>8thGear Hub</p>
+        <p>Geotrak</p>
       `;
     } else if (template === 'reset-password') {
       htmlTemplate = `
@@ -44,7 +44,29 @@ export class EmailUtil {
         <p>If you did not request a password reset, please ignore this email.</p>
         <br>
         <p>Best Regards,</p>
-        <p>8thGear Hub</p>
+        <p>Geotrak</p>
+      `;
+    } else if (template === 'demo-request-confirmation') {
+      const geotrakPhone = '+234 913 246 2410';
+      const geotrakEmail = 'support@8thgearpartners.com';
+      const geotrakSupportText = 'Geotrak Support';
+
+      htmlTemplate = `
+        <p>Hello ${context.fullName},</p>
+        <p>Thanks for requesting a demo!</p>
+        <p>We’ll be in touch shortly to schedule your session.</p>
+        <p>
+          If you need immediate assistance, feel free to call us at
+          <strong>${geotrakPhone}</strong> or email
+          <a
+            href="mailto:${geotrakEmail}"
+            style="text-decoration: none; color: black;"
+          >
+            <strong>${geotrakSupportText}</strong>
+          </a>.
+        </p>
+        <p>Best Regards,</p>
+        <p>Geotrak</p>    
       `;
     }
 

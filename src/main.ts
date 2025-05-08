@@ -28,7 +28,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Data Collection App (Web)')
+    .setTitle('Geotrak')
     .setDescription(
       'Web app for data collection with media capture and geolocation tagging.',
     )

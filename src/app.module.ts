@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { NgStatesModule } from './users/admin/ng-states/ng-states.module';
 import { DataEntryQuestionModule } from './users/admin/all-data/data-questions/data-questions.module';
 import { SurveyModule } from './users/admin/all-data/survey-aggregation/survey-aggregation.module';
+import { DemoRequestsModule } from './demo-request/demo-request.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 console.log(process.env.DEVELOPMENT_MONGODB_CONNECTION_URL);
@@ -61,7 +62,7 @@ import { EnumeratorModule } from './users/enumerator/enumerator.module';
           },
         },
         defaults: {
-          from: 'Data Collection: No Reply" <trulancehq@gmail.com>', // Replace with your default from address
+          from: 'Geotrak: No Reply" <support@8thgearpartners.com>', // Replace with your default from address
         },
         template: {
           dir: join(__dirname, './../src/templates'),
@@ -78,6 +79,7 @@ import { EnumeratorModule } from './users/enumerator/enumerator.module';
     DataEntryQuestionModule,
     EnumeratorModule,
     SurveyModule,
+    DemoRequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailUtil],
